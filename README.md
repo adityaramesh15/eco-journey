@@ -1,2 +1,2 @@
-# team095-OARM
+# team095-OAR
 Project Repo for eco-journey!

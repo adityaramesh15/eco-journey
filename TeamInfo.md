@@ -5,7 +5,7 @@
 |   Info      |        Description     |
 | ----------- | ---------------------- |
 | TeamID      |        Team-095        |
-| TeamName    |           OARM         |
+| TeamName    |           OAR          |
 | Captain     |       Aditya Ramesh    |
 | Captain     |  ramesh18@illinois.edu |
 | Member1     |       Ojas Bankhele    |
