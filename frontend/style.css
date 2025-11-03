@@ -1,0 +1,27 @@
+.home_page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: 2%;
+}
+
+.home_button {
+    width: 50%;
+    height: calc(75vh/3);
+    background-color: white;
+    border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.home_button:hover {
+    background-color: #696969;
+    transform: scale(0.90);
+}
