@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
-
-
+from database import db
+import ranking
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 users_bp = Blueprint('users', __name__, url_prefix='/users')
@@ -18,13 +18,20 @@ def login():
     # data = request.json
     # username = data.get('username')
     # password = data.get('password')
+    data = request.json
+    if not data or 'username' not in data or 'password' not in data:
+        return jsonify({"error": "Missing username or password"}), 400
+    
+    # Get username/password from the request body
+    username = data.get('username')
+    password = data.get('password')
     
     # --- Add logic to validate user ---
     pass
     # ---
     
     # Example response
-    # return jsonify({"user_id": 123, "token": "a-secure-token"}), 200
+    return jsonify({"user_id": 123, "token": "a-secure-token-placeholder"}), 200
 
 
 # --- 2. User Routes ---
@@ -38,6 +45,12 @@ def create_user():
     # data = request.json
     # username = data.get('username')
     # password = data.get('password')
+    data = request.json
+    if not data or 'username' not in data or 'password' not in data:
+        return jsonify({"error": "Missing username or password"}), 400
+
+    username = data.get('username')
+    password = data.get('password') # hash or nah? 
     
     # --- Add logic to create user in database ---
     pass
@@ -76,7 +89,7 @@ def delete_all_user_trips(user_id):
     # ---
     
     # On success, return no content
-    # return '', 204
+    return '', 204
 
 
 # --- 3. City Routes ---
@@ -90,13 +103,18 @@ def check_city():
     # Get data from query parameters
     # city = request.args.get('city')
     # state = request.args.get('state')
+    city = request.args.get('city')
+    state = request.args.get('state')
+
+    if not city or not state:
+        return jsonify({"error": "city and state parameters are required"}), 400
     
     # --- Add logic to check database ---
     pass
     # ---
     
     # Example response
-    # return jsonify({"exists": True}), 200
+    return jsonify({"exists": True}), 200
 
 
 # --- 4. Trip Routes ---
@@ -109,14 +127,48 @@ def get_trip_ranks():
     """
     # Get the complex trip details from the request body
     # data = request.json
+    data = request.json
+    if not data:
+        return jsonify({"error": "Missing request body"}), 400
     
-    # --- Add logic to calculate ranks ---
-    pass
-    # ---
+    locations = data.get('locations')
+    if not locations or not isinstance(locations, list) or len(locations) == 0:
+        return jsonify({"error": "Missing or invalid 'locations' list"}), 400
     
-    # Example response
-    # ranked_data = { ... }
-    # return jsonify(ranked_data), 200
+    prefs = data.get('preferences')
+    if not prefs or not isinstance(prefs, dict):
+        return jsonify({"error": "Missing or invalid 'preferences' object"}), 400
+        
+    pref_temp = prefs.get('temp')
+    pref_precp = prefs.get('precp')
+    bad_days = prefs.get('check_bad_days', False)
+    rainy_days = prefs.get('check_rainy_days', False)
+
+    if pref_temp is None or pref_precp is None:
+        return jsonify({"error": "Missing 'temp' or 'precp' in preferences"}), 400
+    
+    date_range = data.get('date_range')
+    if not date_range or not isinstance(date_range, dict):
+        return jsonify({"error": "Missing or invalid 'date_range' object"}), 400
+        
+    start_month = date_range.get('start_month')
+    start_day = date_range.get('start_day')
+    end_month = date_range.get('end_month')
+    end_day = date_range.get('end_day')
+    
+    if None in [start_month, start_day, end_month, end_day]:
+        return jsonify({"error": "Missing one or more date_range fields"}), 400
+    
+    ### ADD SQL QUERY CALL HERE
+    input_data = []
+
+    ranked_data = ranking.create_ranking(
+        input_data, 
+        int(pref_temp), int(pref_precp), bool(bad_days), bool(rainy_days), 
+        int(start_month), int(start_day), int(end_month), int(end_day)
+    )
+    
+    return jsonify(ranked_data), 200
 
 @trips_bp.route('', methods=['POST'])
 def save_new_trip():
@@ -126,8 +178,27 @@ def save_new_trip():
     """
     # Get trip data from the request body
     # data = request.json
+    data = request.json
+    if not data:
+        return jsonify({"error": "Missing request body"}), 400
+    
+    user_id = data.get('user_id')
+    trip_name = data.get('trip_name')
+
+    ranking_data = data.get('ranking_data') 
+    preferences = data.get('preferences')
+    date_range = data.get('date_range')
+    locations = data.get('locations')
+
+    if not user_id or not trip_name or not ranking_data:
+        return jsonify({"error": "Missing user_id, trip_name, or ranking_data"}), 400
     
     # --- Add logic to save trip (and handle 5-trip limit) ---
+    # 1. Check trip count for user_id
+    # 2. If count < 5, save the new trip.
+    #    (You'd probably save trip_name, user_id, and JSON-serialized
+    #     ranking_data, preferences, date_range, and locations)
+    # This is where we run the trigger
     pass
     # ---
     
@@ -143,6 +214,11 @@ def get_trip_list():
     """
     # Get user_id from query parameters
     # user_id = request.args.get('user_id')
+    user_id = request.args.get('user_id')
+    
+    if not user_id:
+        return jsonify({"error": "user_id query parameter is required"}), 400
+    
     
     # --- Add logic to fetch trip list for the user ---
     pass
@@ -182,6 +258,18 @@ def edit_trip(trip_id):
     # The trip_id is passed from the URL
     # Get the new trip data from the request body
     # data = request.json
+    data = request.json
+    if not data:
+        return jsonify({"error": "Missing request body"}), 400
+
+    new_trip_name = data.get('trip_name')
+    new_preferences = data.get('preferences')
+    new_date_range = data.get('date_range')
+    
+    if not new_trip_name and not new_preferences and not new_date_range:
+        return jsonify({"error": "No updateable fields provided (e.g., trip_name, preferences, date_range)"}), 400
+    
+        
     
     # --- Add logic to update the trip in the database ---
     # --- Re-calculate ranks if necessary ---
