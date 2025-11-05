@@ -21,6 +21,8 @@ def create_ranking(input_data, pref_temp, pref_precp, bad_days, rainy_days,
 
     city_info_list = []
     distances_to_scale = []
+    
+    pref_temp *= 10
 
     for city_data in input_data:
         city, state, avg_tavg, avg_prcp = city_data
@@ -85,7 +87,7 @@ def create_ranking(input_data, pref_temp, pref_precp, bad_days, rainy_days,
 
 
 
-def check_bad_days(start_month, start_day, end_month, end_day, city, state): # No 'conn'
+def check_bad_days(start_month, start_day, end_month, end_day, city, state): 
     """
     Checks if a location has ANY "bad days" (TAVG < 150 or > 270, or PRCP > 1000)
     in the given date range.
@@ -126,7 +128,7 @@ def check_bad_days(start_month, start_day, end_month, end_day, city, state): # N
     return not bool(result['good_weather']) 
 
 
-def check_rainy_days(start_month, start_day, end_month, end_day, city, state): # No 'conn'
+def check_rainy_days(start_month, start_day, end_month, end_day, city, state): 
     """
     Checks if a location has ANY "rainy days" (PRCP > 200)
     in the given date range.
@@ -156,7 +158,6 @@ def check_rainy_days(start_month, start_day, end_month, end_day, city, state): #
         ) AS rainy_flag;
     """
     
-    # The parameters are passed as a separate tuple
     params = (
         city, state, 
         start_month, start_day, start_month, end_month, end_day,

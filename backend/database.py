@@ -1,4 +1,3 @@
-# database.py
 import MySQLdb
 import MySQLdb.cursors
 import os
