@@ -25,3 +25,188 @@
     background-color: #696969;
     transform: scale(0.90);
 }
+
+.create_page {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#left_side_create {
+    flex: 1;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    background: #f9f9f9;
+}
+
+#trip_form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+#location_inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.location_row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.city_input,
+.state_input {
+  height: 2.4rem;
+  padding: 0.4rem 0.6rem;
+  box-sizing: border-box;
+}
+
+.city-input {
+    flex: 3;
+}
+  
+.state-input {
+    flex: 1;
+    text-transform: uppercase;
+}
+
+#right_side_create {
+    flex: 1;
+    background: #ffffff;
+    border-left: 1px solid #ddd;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.pref_select {
+    height: 2.4rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 50%;
+    max-width: 300px;
+    box-sizing: border-box;
+}
+
+.date_inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date_box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.date_input {
+    width: 70px;
+    height: 2.2rem;
+    padding: 0.3rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.check_box_inputs {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#submit_trip {
+    background-color: #19d276;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 50%;
+    max-width: 250px;
+}
+
+.location_ranks_display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    width: 100%;
+    flex: 1;
+    justify-content: center;
+}
+
+.rank_box {
+    width: 80%;
+    max-width: 300px;
+    height: 90px;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.save_or_discard_trip {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 2rem;
+  }
+  
+#confirm_button,
+#discard_button {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#confirm_button {
+    background-color: #4caf50;
+    color: white;
+}
+  
+#confirm_button:hover {
+    background-color: #3e8e41;
+}
+  
+#discard_button {
+    background-color: #e74c3c;
+    color: white;
+}
+  
+#discard_button:hover {
+    background-color: #c0392b;
+}
+
+#home_button {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+  
+#home_button:hover {
+    background-color: #125ea9;
+}

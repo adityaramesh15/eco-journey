@@ -1,9 +1,241 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <title>Create Your Trip</title>
+        <link rel = "stylesheet" href = "style.css"/>
     </head>
     <body>
-        <a href="home.html">Foo</a>
+        <main class = "create_page">
+            <section id="left_side_create">
+                <div class="return_home">
+                    <button id="home_button" type="button">Home</button>
+                </div>
+                
+                <form id="trip_form">
+                    <section id="location_inputs">
+                        
+                        <div class = "location_row">
+                            <label>Enter Location #1</label>
+                            <input
+                                type="text"
+                                name="city1"
+                                placeholder="Enter city here"
+                                class="city_input"
+                                required
+                            />
+                            <input
+                                name="state1"
+                                class="state_input"
+                                placeholder="Select state here"
+                                list="us-states"
+                                maxlength="2"
+                                pattern="^[A-Za-z]{2}"
+                                required
+                            />
+                        </div>
+
+                        <div class = "location_row">
+                            <label>Enter Location #2</label>
+                            <input
+                                type="text"
+                                name="city2"
+                                placeholder="Enter city here"
+                                class="city_input"
+                                required
+                            />
+                            <input
+                                name="state2"
+                                class="state_input"
+                                placeholder="Select state here"
+                                list="us-states"
+                                maxlength="2"
+                                pattern="^[A-Za-z]{2}"
+                                required
+                            />
+                        </div>
+
+                        <div class = "location_row">
+                            <label>Enter Location #3</label>
+                            <input
+                                type="text"
+                                name="city3"
+                                placeholder="Enter city here"
+                                class="city_input"
+                                required
+                            />
+                            <input
+                                name="state3"
+                                class="state_input"
+                                placeholder="Select state here"
+                                list="us-states"
+                                maxlength="2"
+                                pattern="^[A-Za-z]{2}"
+                                required
+                            />
+                        </div>
+
+                    </section>
+
+                    <section id="pref_inputs">
+                        <div class="pref_row">
+                            <label>Select Temperature Preference: </label>
+                            <select id="temp_pref" name="temp_pref" class="pref_select" required>
+                                <option value = "high">High</option>
+                                <option value = "medium">Medium</option>
+                                <option value = "low">Low</option>
+                            </select>
+                        </div>
+                        <div class="pref_row">
+                            <label>Select Precipitation Preference: </label>
+                            <select id="precip_pref" name="precip_pref" class="pref_select" required>
+                                <option value = "high">High</option>
+                                <option value = "medium">Medium</option>
+                                <option value = "low">Low</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <section id = "date_inputs">
+                        <label> Select Trip Date:</label>
+                        <div class="date_box">
+                            <input
+                                type="number"
+                                id="start_month"
+                                name="start_month"
+                                class="date_input"
+                                placeholder="MM"
+                                min="1"
+                                max="12"
+                                required
+                            />
+                        </div>
+                        <div class="date_box">
+                            <input
+                                type="number"
+                                id="start_day"
+                                name="start_day"
+                                class="date_input"
+                                placeholder="DD"
+                                min="1"
+                                max="31"
+                                required
+                            />
+                        </div>
+                        <div class="date_box">
+                            <input
+                                type="number"
+                                id="end_month"
+                                name="end_month"
+                                class="date_input"
+                                placeholder="MM"
+                                min="1"
+                                max="12"
+                                required
+                            />
+                        </div>
+                        <div class="date_box">
+                            <input
+                                type="number"
+                                id="end_day"
+                                name="end_day"
+                                class="date_input"
+                                placeholder="DD"
+                                min="1"
+                                max="31"
+                                required
+                            />
+                        </div>
+                    </section>
+
+                    <section id = "check_box_inputs">
+                        <label>Check for Bad Days</label>
+                        <input
+                            type="checkbox"
+                            id="check_bad_days"
+                            name="check_bad_days"
+                        />
+                        <label>Check for Rainy Days</label>
+                        <input
+                            type="checkbox"
+                            id="check_rainy_days"
+                            name="check_rainy_days"
+                        />
+                    </section>
+
+                    <button type = "submit" id ="submit_trip">Submit Trip</button>
+                </form>
+                <datalist id="us-states">
+                    <option value="AL"></option>
+                    <option value="AK"></option>
+                    <option value="AZ"></option>
+                    <option value="AR"></option>
+                    <option value="CA"></option>
+                    <option value="CO"></option>
+                    <option value="CT"></option>
+                    <option value="DE"></option>
+                    <option value="FL"></option>
+                    <option value="GA"></option>
+                    <option value="HI"></option>
+                    <option value="ID"></option>
+                    <option value="IL"></option>
+                    <option value="IN"></option>
+                    <option value="IA"></option>
+                    <option value="KS"></option>
+                    <option value="KY"></option>
+                    <option value="LA"></option>
+                    <option value="ME"></option>
+                    <option value="MD"></option>
+                    <option value="MA"></option>
+                    <option value="MI"></option>
+                    <option value="MN"></option>
+                    <option value="MS"></option>
+                    <option value="MO"></option>
+                    <option value="MT"></option>
+                    <option value="NE"></option>
+                    <option value="NV"></option>
+                    <option value="NH"></option>
+                    <option value="NJ"></option>
+                    <option value="NM"></option>
+                    <option value="NY"></option>
+                    <option value="NC"></option>
+                    <option value="ND"></option>
+                    <option value="OH"></option>
+                    <option value="OK"></option>
+                    <option value="OR"></option>
+                    <option value="PA"></option>
+                    <option value="RI"></option>
+                    <option value="SC"></option>
+                    <option value="SD"></option>
+                    <option value="TN"></option>
+                    <option value="TX"></option>
+                    <option value="UT"></option>
+                    <option value="VT"></option>
+                    <option value="VA"></option>
+                    <option value="WA"></option>
+                    <option value="WV"></option>
+                    <option value="WI"></option>
+                    <option value="WY"></option>
+                  </datalist>
+            </section>
+
+            <section id="right_side_create">
+                <section id="location_ranks_display">
+                    <div class="rank_box">Rank 1</div>
+                    <div class="rank_box">Rank 2</div>
+                    <div class="rank_box">Rank 3</div>
+                </section>
+
+                <section id="save_or_discard_trip">
+                    <button id="confirm_button">Confirm</button>
+                    <button id="discard_button">Discard</button>
+                </section>
+
+                <section id="trip_warnings">
+                    <p>Warning - 5 Trips</p>
+                    <p>Warning - Rainy/Bad Days</p>
+                </section>
+            </section>
+        </main>
+        <script src="script.js"></script>
     </body>
 </html>
