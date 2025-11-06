@@ -1,3 +1,5 @@
+// NAVIGATION BUTTONS
+
 const create_button_wrap = document.getElementById("create_button");
 if (create_button_wrap) {
     create_button_wrap.addEventListener("click", () => 
@@ -115,16 +117,31 @@ async function check_city_exists(city, state) {
     return true;
 }
 
+// TRIP FORM PROCESSOR AND GENERATOR FUNCTION
+
 const trip_form_wrap = document.getElementById("trip_form");
 if (trip_form_wrap) {
     trip_form_wrap.addEventListener("submit", async (event) => {
     event.preventDefault(); // prevent page reload
 
-    // Reset Previous Error Messages
+    // Reset Previous Error and Warning Messages
     const errorBox = document.getElementById("error_messages");
     errorBox.style.display = "none";
     errorBox.innerHTML = "";
     let errors = [];
+
+    const warning_box = document.getElementById("warning_messages");
+    warning_box.style.display = "none";
+    warning_box.innerHTML = "";
+    let warnings = [];
+
+    // Clear Previous Ranks
+    const r1 = document.getElementById("rank1");
+    const r2 = document.getElementById("rank2");
+    const r3 = document.getElementById("rank3");
+    r1.textContent = "Rank 1:";
+    r2.textContent = "Rank 2:";
+    r3.textContent = "Rank 3:";
 
     // Location Data Processing
     const city1 = document.querySelector("[name='city1']").value.trim();
@@ -231,17 +248,148 @@ if (trip_form_wrap) {
     // Generate Output JSON Object
 
     // TEST JSON OUTPUT - to check for proper trip generation:
+    const test_json_output = {
+        rank_1_location: {
+            city: "Chicago",
+            state: "IL",
+            bad_days: true,
+            rainy_days: true
+        },
+        rank_2_location: {
+            city: "Denver",
+            state: "CO",
+            bad_days: true,
+            rainy_days: true
+        },
+        rank_3_location: {
+            city: "Miami",
+            state: "FL",
+            bad_days: true,
+            rainy_days: true
+        }
+    };
 
     // Generate the Trip
 
     // Update Rank Elements
+    r1.textContent = `Rank 1: ${test_json_output.rank_1_location.city}, 
+    ${test_json_output.rank_1_location.state}`;
+	r2.textContent = `Rank 2: ${test_json_output.rank_2_location.city}, 
+    ${test_json_output.rank_2_location.state}`;
+	r3.textContent = `Rank 3: ${test_json_output.rank_3_location.city}, 
+    ${test_json_output.rank_3_location.state}`;
 
     // Update Checkbox and Trip Count Warnings
+    // Test trip_count:
+    const trip_count = 4;
+
+    if (trip_count >= 5) {
+        warnings.push("WARNING you've reached your 5 trip limit, saving this trip will replace your oldest trip");
+    }
+
+    let bad_day_locations = [];
+    for (const [key, location] of Object.entries(test_json_output)) {
+        if (location.bad_days === true) {
+            bad_day_locations.push(`${location.city}, ${location.state}`);
+        }
+    }
+    if (bad_day_locations.length > 0) {
+        warnings.push(`WARNING these locations contain bad days: ${bad_day_locations.join("; ")}`);
+    }
+
+    let rainy_day_locations = [];
+    for (const [key, location] of Object.entries(test_json_output)) {
+        if (location.rainy_days === true) {
+            rainy_day_locations.push(`${location.city}, ${location.state}`);
+        }
+    }
+    if (rainy_day_locations.length > 0) {
+        warnings.push(`WARNING these locations contain rainy days: ${rainy_day_locations.join("; ")}`);
+    }
+
+    if (warnings.length > 0) {
+        warning_box.style.display = "block";
+
+        const header = document.createElement("p");
+        header.textContent = "WARNINGS:";
+        header.style.fontWeight = "bold";
+        warning_box.appendChild(header);
+
+        warnings.forEach((msg) => {
+            const p = document.createElement("p");
+            p.textContent = msg;
+            warning_box.appendChild(p);
+        });
+
+        const footer = document.createElement("p");
+        footer.textContent = "Please consider these warnings before saving your trip";
+        warning_box.appendChild(footer);
+    }
+    
+    // Save JSON Data to Memory - so it can be used by save function
+    sessionStorage.setItem("current_trip_data", JSON.stringify(test_json_output));
+    return;
 
     });
 }
 
-// TODO: SAVE FUNCTION
-const save_button_wrap = 0
-// TODO: RESET/DELETE FUNCTION
-const discard_button_wrap = 0
+// SAVE FUNCTION
+const save_button_wrap = async () => {
+	// Retrieve stored trip data
+	const stored_trip = sessionStorage.getItem("current_trip_data");
+
+	if (!stored_trip) {
+		return;
+	}
+
+	// Parse and format JSON
+	const trip_data = JSON.parse(stored_trip);
+
+	const formatted_trip_json = {
+		user_id: trip_data.user_id,
+		trip_name: trip_data.trip_name,
+		date_range: {
+			start_month: trip_data.date_range.start_month,
+			start_day: trip_data.date_range.start_day,
+			end_month: trip_data.date_range.end_month,
+			end_day: trip_data.date_range.end_day
+		},
+		preferences: {
+			temp: trip_data.preferences.temp,
+			precp: trip_data.preferences.precp
+		},
+		locations: [
+			{ city: trip_data.locations[0].city, state: trip_data.locations[0].state },
+			{ city: trip_data.locations[1].city, state: trip_data.locations[1].state },
+			{ city: trip_data.locations[2].city, state: trip_data.locations[2].state }
+		]
+	};
+};
+
+// DISCARD FUNCTION
+const discard_button_wrap = () => {
+	// Remove stored trip data
+	sessionStorage.removeItem("current_trip_data");
+
+	// Reset UI elements
+	const error_box = document.getElementById("error_messages");
+	const warning_box = document.getElementById("warning_messages");
+	const rank_1_box = document.getElementById("rank1");
+	const rank_2_box = document.getElementById("rank2");
+	const rank_3_box = document.getElementById("rank3");
+
+	// Hide error/warning boxes
+	error_box.style.display = "none";
+	error_box.innerHTML = "";
+	warning_box.style.display = "none";
+	warning_box.innerHTML = "";
+
+	// Reset rank boxes
+	rank_1_box.textContent = "Rank 1:";
+	rank_2_box.textContent = "Rank 2:";
+	rank_3_box.textContent = "Rank 3:";
+
+	// Reset all form inputs
+	const form = document.getElementById("trip_form");
+	if (form) form.reset();
+};
