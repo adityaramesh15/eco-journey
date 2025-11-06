@@ -121,6 +121,18 @@
     box-sizing: border-box;
 }
 
+.temp_input {
+    height: 2.4rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 50%;
+    max-width: 300px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
 #date_inputs {
     display: flex;
     flex-direction: column;
@@ -260,6 +272,7 @@
 }
 
 #error_messages, #warning_messages {
+    display: none;
     background-color: #ffcccc;
     border: 1px solid #ff9999;
     border-radius: 8px;
