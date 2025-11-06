@@ -10,12 +10,23 @@
                 <div class="return_home">
                     <button id="home_button" type="button">Home</button>
                 </div>
-                
+                <div class="return_home_spacer"></div>
                 <form id="trip_form">
+                    <section id="trip_name_row">
+                        <label>Enter Trip Name:</label>
+                        <input
+                            type="text"
+                            id="trip_name"
+                            name="trip_name"
+                            class="trip_name_input"
+                            placeholder="Enter trip name here"
+                            maxlength="255"
+                            required
+                        />
+                    </section>
                     <section id="location_inputs">
-                        
                         <div class = "location_row">
-                            <label>Enter Location #1</label>
+                            <label>Enter Location #1:</label>
                             <input
                                 type="text"
                                 name="city1"
@@ -35,7 +46,7 @@
                         </div>
 
                         <div class = "location_row">
-                            <label>Enter Location #2</label>
+                            <label>Enter Location #2:</label>
                             <input
                                 type="text"
                                 name="city2"
@@ -55,7 +66,7 @@
                         </div>
 
                         <div class = "location_row">
-                            <label>Enter Location #3</label>
+                            <label>Enter Location #3:</label>
                             <input
                                 type="text"
                                 name="city3"
@@ -97,7 +108,8 @@
 
                     <section id = "date_inputs">
                         <label> Select Trip Date:</label>
-                        <div class="date_box">
+                        <div class="date_row">
+                            <label>From:</label>
                             <input
                                 type="number"
                                 id="start_month"
@@ -108,8 +120,6 @@
                                 max="12"
                                 required
                             />
-                        </div>
-                        <div class="date_box">
                             <input
                                 type="number"
                                 id="start_day"
@@ -120,8 +130,7 @@
                                 max="31"
                                 required
                             />
-                        </div>
-                        <div class="date_box">
+                            <label>Until:</label>
                             <input
                                 type="number"
                                 id="end_month"
@@ -132,8 +141,6 @@
                                 max="12"
                                 required
                             />
-                        </div>
-                        <div class="date_box">
                             <input
                                 type="number"
                                 id="end_day"
@@ -164,6 +171,12 @@
 
                     <button type = "submit" id ="submit_trip">Submit Trip</button>
                 </form>
+                <section id="error_messages">
+                    <p id="error_city_dne">ERROR these cities don't exist:</p>
+                    <p id="error_date_dne">ERROR these dates don't exist:</p>
+                    <p id="error_date_range">ERROR the date range is greater than 7</p>
+                    <p>Please fix the error(s) and resubmit</p>
+                </section>
                 <datalist id="us-states">
                     <option value="AL"></option>
                     <option value="AK"></option>
@@ -220,19 +233,21 @@
 
             <section id="right_side_create">
                 <section id="location_ranks_display">
-                    <div class="rank_box">Rank 1</div>
-                    <div class="rank_box">Rank 2</div>
-                    <div class="rank_box">Rank 3</div>
+                    <div class="rank_box" id="rank1">Rank 1:</div>
+                    <div class="rank_box" id="rank2">Rank 2:</div>
+                    <div class="rank_box" id="rank3">Rank 3:</div>
                 </section>
 
                 <section id="save_or_discard_trip">
-                    <button id="confirm_button">Confirm</button>
-                    <button id="discard_button">Discard</button>
+                    <button id="confirm_button">Confirm Trip</button>
+                    <button id="discard_button">Discard Trip</button>
                 </section>
 
-                <section id="trip_warnings">
-                    <p>Warning - 5 Trips</p>
-                    <p>Warning - Rainy/Bad Days</p>
+                <section id="warning_messages">
+                    <p>WARNING you've reached your 5 trip limit, saving this trip will replace your oldest trip</p>
+                    <p>WARNING these locations contain bad days:</p>
+                    <p>WARNING these locations contain rainy days:</p>
+                    <p>Please consider these warnings before saving your trip</p>
                 </section>
             </section>
         </main>

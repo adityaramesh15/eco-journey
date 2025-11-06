@@ -36,11 +36,32 @@
     box-sizing: border-box;
 }
 
+.return_home_spacer {
+    height: 1.5rem;
+}
+
+.trip_name_row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.trip_name_input {
+    width: 75%;
+    max-width: 400px;
+    height: 2.2rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
 #left_side_create {
     flex: 1;
     padding: 1.5rem;
     box-sizing: border-box;
-    background: #f9f9f9;
+    background: #baf1ff;
 }
 
 #trip_form {
@@ -57,7 +78,12 @@
 
 .location_row {
     display: flex;
+    align-items: center;
     gap: 0.75rem;
+}
+
+.location_row label {
+    min-width: 130px;
 }
 
 .city_input,
@@ -78,7 +104,7 @@
 
 #right_side_create {
     flex: 1;
-    background: #ffffff;
+    background: #baffbd;
     border-left: 1px solid #ddd;
     min-height: 100vh;
     box-sizing: border-box;
@@ -95,16 +121,17 @@
     box-sizing: border-box;
 }
 
-.date_inputs {
+#date_inputs {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.date_box {
+.date_row {
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
 }
 
 .date_input {
@@ -124,7 +151,7 @@
 }
 
 #submit_trip {
-    background-color: #19d276;
+    background-color: #4caf50;
     color: white;
     border: none;
     border-radius: 6px;
@@ -133,35 +160,56 @@
     cursor: pointer;
     width: 50%;
     max-width: 250px;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    transition: background-color 0.2s ease;
 }
 
-.location_ranks_display {
+#submit_trip:hover {
+    background-color:#3e8e41;
+}
+
+#location_ranks_display {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.2rem;
+    gap: 1.5rem;
     width: 100%;
-    flex: 1;
-    justify-content: center;
+    flex-grow: 1;
+    justify-content: flex-start;
+    padding-top: 2.5rem;
+    box-sizing: border-box;
 }
 
 .rank_box {
     width: 80%;
     max-width: 300px;
     height: 90px;
-    background-color: #f0f0f0;
-    border: 2px solid #ccc;
-    border-radius: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1.1rem;
     color: #333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.save_or_discard_trip {
+#rank1 {
+    background-color: #ffd700;
+}
+
+#rank2 {
+    background-color: #c0c0c0;
+}
+
+#rank3 {
+    background-color: #cd7f32;
+}
+
+#save_or_discard_trip {
     display: flex;
     justify-content: center;
     gap: 1.2rem;
@@ -209,4 +257,23 @@
   
 #home_button:hover {
     background-color: #125ea9;
+}
+
+#error_messages, #warning_messages {
+    background-color: #ffcccc;
+    border: 1px solid #ff9999;
+    border-radius: 8px;
+    width: 95%;
+    margin: 1rem auto 0 auto;
+    padding: 0.8rem 1rem;
+    box-sizing: border-box;
+    text-align: left;
+    line-height: 1.5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#error_messages p, #warning_messages p{
+    margin: 0.3rem 0;
+    font-weight: 500;
+    color: #660000;  
 }
