@@ -72,6 +72,8 @@ def get_user_trip_count(user_id):
 def save_new_trip(user_id, trip_name, start_date, end_date, precip_pref, temp_pref, locations):
     """
     Transactional save of a new trip.
+    Locations MUST be an ordered list: [{'city': 'C1', 'state': 'S1'}, ...]
+    The index in the list determines the rank (0 -> rank 1, 1 -> rank 2, etc.)
     """
     conn = db._get_connection()
     try:
@@ -89,9 +91,8 @@ def save_new_trip(user_id, trip_name, start_date, end_date, precip_pref, temp_pr
             (trip_id, 'temperature', temp_pref)
         ])
         
-
-        loc_sql = "INSERT INTO TRIP_LOCATIONS (tripID, CITY, STATE) VALUES (%s, %s, %s)"
-        loc_data = [(trip_id, loc['city'], loc['state']) for loc in locations]
+        loc_sql = "INSERT INTO TRIP_LOCATIONS (tripID, CITY, STATE, rank_order) VALUES (%s, %s, %s, %s)"
+        loc_data = [(trip_id, loc['city'], loc['state'], i + 1) for i, loc in enumerate(locations)]
         cur.executemany(loc_sql, loc_data)
         
         conn.commit()
@@ -120,14 +121,15 @@ def view_trip(trip_id):
     trip = db.execute(sql_trip, (trip_id,), fetchone=True)
     
     if trip:
-        sql_locs = "SELECT CITY AS city, STATE AS state FROM TRIP_LOCATIONS WHERE tripID = %s"
+        sql_locs = "SELECT CITY AS city, STATE AS state, rank_order FROM TRIP_LOCATIONS WHERE tripID = %s ORDER BY rank_order ASC"
         trip['locations'] = db.execute(sql_locs, (trip_id,), fetchall=True)
         
     return trip
 
 def edit_trip(trip_id, trip_name, start_date, end_date, precip_pref, temp_pref, locations):
     """
-    Transactional update of a trip.
+    Transactional update of a trip. Full wipe and replace of locations is easiest 
+    to maintain correct ranks.
     """
     conn = db._get_connection()
     try:
@@ -141,24 +143,11 @@ def edit_trip(trip_id, trip_name, start_date, end_date, precip_pref, temp_pref, 
         cur.execute("UPDATE PREFERENCES SET preferredValue=%s WHERE tripID=%s AND featureName='precipitation'", (precip_pref, trip_id))
         cur.execute("UPDATE PREFERENCES SET preferredValue=%s WHERE tripID=%s AND featureName='temperature'", (temp_pref, trip_id))
         
-
-        needed_locs = set((loc['city'], loc['state']) for loc in locations)
-        current_locs = set()
+        cur.execute("DELETE FROM TRIP_LOCATIONS WHERE tripID = %s", (trip_id,))
         
-        cur.execute("SELECT CITY, STATE FROM TRIP_LOCATIONS WHERE tripID = %s", (trip_id,))
-        for row in cur.fetchall():
-             current_locs.add((row['CITY'], row['STATE']))
-             
-        to_delete = current_locs - needed_locs
-        to_insert = needed_locs - current_locs
-        
-        if to_delete:
-             del_sql = "DELETE FROM TRIP_LOCATIONS WHERE tripID=%s AND CITY=%s AND STATE=%s"
-             cur.executemany(del_sql, [(trip_id, c, s) for c, s in to_delete])
-             
-        if to_insert:
-             ins_sql = "INSERT INTO TRIP_LOCATIONS (tripID, CITY, STATE) VALUES (%s, %s, %s)"
-             cur.executemany(ins_sql, [(trip_id, c, s) for c, s in to_insert])
+        loc_sql = "INSERT INTO TRIP_LOCATIONS (tripID, CITY, STATE, rank_order) VALUES (%s, %s, %s, %s)"
+        loc_data = [(trip_id, loc['city'], loc['state'], i + 1) for i, loc in enumerate(locations)]
+        cur.executemany(loc_sql, loc_data)
 
         conn.commit()
         return True

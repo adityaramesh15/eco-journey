@@ -128,18 +128,25 @@ def get_trip_list():
 def view_trip(trip_id):
     trip = queries.view_trip(trip_id)
     if trip:
-
         response = {
             "trip_name": trip['trip_name'],
-            "date_start": str(trip['startDate']), 
-            "date_end": str(trip['endDate']),
+            "date_start": {
+                "month": trip['startDate'].month,
+                "day": trip['startDate'].day
+            },
+            "date_end": {
+                "month": trip['endDate'].month,
+                "day": trip['endDate'].day
+            },
             "preferences": {
                 "precipitation": trip['precipitation'],
                 "temperature": trip['temperature']
             }
         }
-        for i, loc in enumerate(trip['locations']):
-             response[f"rank_{i+1}_location"] = loc
+
+        for loc in trip['locations']:
+             rank_key = f"rank_{loc['rank_order']}_location"
+             response[rank_key] = {"city": loc['city'], "state": loc['state']}
              
         return jsonify(response), 200
     return jsonify({"error": "Trip not found"}), 404
