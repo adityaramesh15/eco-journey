@@ -21,6 +21,7 @@ def login():
         return jsonify({"error": "Missing username or password"}), 400
     
     user = queries.login_user(data['username'], data['password'])
+    print(user)
     
     if user:
         return jsonify({"user_id": user['user_id'], "token": "demo-token"}), 200
@@ -54,6 +55,8 @@ def delete_all_user_trips(user_id):
 def check_city():
     city = request.args.get('city')
     state = request.args.get('state')
+    print(city)
+    print(state)
     if not city or not state:
         return jsonify({"error": "City and state required"}), 400
     
@@ -77,7 +80,6 @@ def get_trip_ranks():
         dr['start_month'], dr['start_day'],
         dr['end_month'], dr['end_day']
     )
-
     
     formatted_input = [(r['CITY'], r['STATE'], r['avg_temp'], r['avg_precipitation']) for r in ranking_input]
 

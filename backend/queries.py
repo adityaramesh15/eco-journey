@@ -27,7 +27,9 @@ def login_user(username, password):
     """
     Checks credentials for login.
     """
+    
     sql = "SELECT userID AS user_id FROM USERS WHERE username = %s AND password = %s"
+    print('in here!')
     return db.execute(sql, (username, password), fetchone=True)
 
 def check_city_exists(city, state):
@@ -52,15 +54,32 @@ def get_ranking_data(cities, m1, d1, m2, d2):
         JOIN (
           SELECT RND_LAT, RND_LNG, TAVG, PRCP
           FROM HISTORICAL_WEATHER
-          WHERE (H_MONTH = %s AND H_DAY >= %s AND (%s = %s OR H_DAY <= %s))
-             OR (%s <> %s AND H_MONTH = %s AND H_DAY <= %s)
-        ) AS S ON S.RND_LAT = L.RND_LAT AND S.RND_LNG = L.RND_LNG
+          WHERE 
+            -- Case 1: Same month range (e.g., June 1 to June 10)
+            (%s = %s AND H_MONTH = %s AND H_DAY >= %s AND H_DAY <= %s)
+            OR 
+            -- Case 2: Cross-month range (e.g., June 25 to July 5)
+            (%s < %s AND (
+                (H_MONTH = %s AND H_DAY >= %s)       -- Start month from start day
+                OR (H_MONTH = %s AND H_DAY <= %s)    -- End month up to end day
+                OR (H_MONTH > %s AND H_MONTH < %s)   -- Any full months in between
+            ))
+        ) AS S ON S.RND_LAT BETWEEN L.RND_LAT - 0.3 AND L.RND_LAT + 0.3
+        AND S.RND_LNG BETWEEN L.RND_LNG - 0.3 AND L.RND_LNG + 0.3
+
         WHERE (L.CITY, L.STATE) IN ({in_placeholders})
         GROUP BY L.CITY, L.STATE
     """
     
+    date_params = (
+        m1, m2, m1, d1, d2,      # Case 1 params
+        m1, m2,                  # Case 2 condition
+        m1, d1,                  # Case 2 start month
+        m2, d2,                  # Case 2 end month
+        m1, m2                   # Case 2 middle months
+    )
     city_params = [item for sublist in cities for item in sublist]
-    params = (m1, d1, m1, m2, d2, m1, m2, m2, d2, *city_params)
+    params = date_params + tuple(city_params)
     
     return db.execute(sql, params, fetchall=True)
 

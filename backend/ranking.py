@@ -90,7 +90,7 @@ def create_ranking(input_data, pref_temp, pref_precp, bad_days, rainy_days,
 def check_bad_days(start_month, start_day, end_month, end_day, city, state): 
     """
     Checks if a location has ANY "bad days" (TAVG < 150 or > 270, or PRCP > 1000)
-    in the given date range.
+    in the given date range, using +/- 0.3 degree weather data.
     Returns True if bad days EXIST, False otherwise.
     """
 
@@ -98,71 +98,76 @@ def check_bad_days(start_month, start_day, end_month, end_day, city, state):
         SELECT EXISTS (
             SELECT 1
             FROM LOCATIONS L
-            WHERE L.CITY = %s
-                AND L.STATE = %s
-                AND NOT EXISTS (
-                SELECT 1
-                FROM (
-                    SELECT RND_LAT, RND_LNG
-                    FROM HISTORICAL_WEATHER
-                    WHERE (
-                        (H_MONTH = %s AND H_DAY >= %s AND (%s = %s OR H_DAY <= %s))
-                        OR
-                        (%s <> %s AND H_MONTH = %s AND H_DAY <= %s)
-                    )
-                    AND (TAVG < 150 OR TAVG > 270 OR PRCP > 1000)
-                ) S
-                WHERE S.RND_LAT = L.RND_LAT
-                    AND S.RND_LNG = L.RND_LNG
-                )
-            ) AS good_weather;
+            JOIN HISTORICAL_WEATHER HW
+              ON HW.RND_LAT BETWEEN L.RND_LAT - 0.3 AND L.RND_LAT + 0.3
+             AND HW.RND_LNG BETWEEN L.RND_LNG - 0.3 AND L.RND_LNG + 0.3
+            WHERE L.CITY = %s AND L.STATE = %s
+              AND (
+                -- Date logic
+                (%s = %s AND HW.H_MONTH = %s AND HW.H_DAY >= %s AND HW.H_DAY <= %s)
+                OR 
+                (%s < %s AND (
+                    (HW.H_MONTH = %s AND HW.H_DAY >= %s)
+                    OR (HW.H_MONTH = %s AND HW.H_DAY <= %s)
+                    OR (HW.H_MONTH > %s AND HW.H_MONTH < %s)
+                ))
+              )
+              -- Bad day criteria
+              AND (HW.TAVG < 150 OR HW.TAVG > 270 OR HW.PRCP > 1000)
+        ) AS bad_days_exist
     """
     
     params = (
-        city, state, 
-        start_month, start_day, start_month, end_month, end_day,
-        start_month, end_month, end_month, end_day
+        city, state,
+        start_month, end_month, start_month, start_day, end_day,
+        start_month, end_month,
+        start_month, start_day,
+        end_month, end_day,
+        start_month, end_month
     )
     
     result = db.execute(sql, params, fetchone=True)
-    return not bool(result['good_weather']) 
+    return bool(result['bad_days_exist'])
 
 
 def check_rainy_days(start_month, start_day, end_month, end_day, city, state): 
     """
     Checks if a location has ANY "rainy days" (PRCP > 200)
-    in the given date range.
+    in the given date range, using +/- 0.3 degree weather data.
     Returns True if rainy days EXIST, False otherwise.
     """
     
     sql = """
         SELECT EXISTS (
-          SELECT 1
-          FROM LOCATIONS L
-          WHERE L.CITY = %s
-            AND L.STATE = %s
-            AND EXISTS (
-              SELECT 1
-              FROM (
-                SELECT RND_LAT, RND_LNG
-                FROM HISTORICAL_WEATHER
-                WHERE (
-                        (H_MONTH = %s AND H_DAY >= %s AND (%s = %s OR H_DAY <= %s))
-                        OR
-                        (%s <> %s AND H_MONTH = %s AND H_DAY <= %s)
-                      ) AND PRCP > 200
-              ) S
-              WHERE S.RND_LAT = L.RND_LAT
-                AND S.RND_LNG = L.RND_LNG
-            )
-        ) AS rainy_flag;
+            SELECT 1
+            FROM LOCATIONS L
+            JOIN HISTORICAL_WEATHER HW
+              ON HW.RND_LAT BETWEEN L.RND_LAT - 0.3 AND L.RND_LAT + 0.3
+             AND HW.RND_LNG BETWEEN L.RND_LNG - 0.3 AND L.RND_LNG + 0.3
+            WHERE L.CITY = %s AND L.STATE = %s
+              AND (
+                -- Date logic
+                (%s = %s AND HW.H_MONTH = %s AND HW.H_DAY >= %s AND HW.H_DAY <= %s)
+                OR 
+                (%s < %s AND (
+                    (HW.H_MONTH = %s AND HW.H_DAY >= %s)
+                    OR (HW.H_MONTH = %s AND HW.H_DAY <= %s)
+                    OR (HW.H_MONTH > %s AND HW.H_MONTH < %s)
+                ))
+              )
+              -- Rainy criteria
+              AND HW.PRCP > 400
+        ) AS rainy_days_exist
     """
     
     params = (
-        city, state, 
-        start_month, start_day, start_month, end_month, end_day,
-        start_month, end_month, end_month, end_day
+        city, state,
+        start_month, end_month, start_month, start_day, end_day,
+        start_month, end_month,
+        start_month, start_day,
+        end_month, end_day,
+        start_month, end_month
     )
 
     result = db.execute(sql, params, fetchone=True)    
-    return bool(result['rainy_flag'])
+    return bool(result['rainy_days_exist'])
