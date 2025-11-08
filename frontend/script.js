@@ -117,6 +117,31 @@ async function check_city_exists(city, state) {
     return true;
 }
 
+// RESET PAGE HELPER FUNCTIONS
+
+function clear_messages() {
+    const error_box = document.getElementById("error_messages");
+    error_box.style.display = "none";
+    error_box.innerHTML = "";
+    const warning_box = document.getElementById("warning_messages");
+    warning_box.style.display = "none";
+    warning_box.innerHTML = "";
+}
+
+function clear_ranks() {
+    const r1 = document.getElementById("rank1");
+    const r2 = document.getElementById("rank2");
+    const r3 = document.getElementById("rank3");
+    r1.textContent = "Rank 1:";
+    r2.textContent = "Rank 2:";
+    r3.textContent = "Rank 3:";
+}
+
+function clear_form_inputs() {
+	const form = document.getElementById("trip_form");
+	if (form) form.reset();
+}
+
 // TRIP FORM PROCESSOR AND GENERATOR FUNCTION
 
 const trip_form_wrap = document.getElementById("trip_form");
@@ -124,24 +149,9 @@ if (trip_form_wrap) {
     trip_form_wrap.addEventListener("submit", async (event) => {
     event.preventDefault(); // prevent page reload
 
-    // Reset Previous Error and Warning Messages
-    const errorBox = document.getElementById("error_messages");
-    errorBox.style.display = "none";
-    errorBox.innerHTML = "";
-    let errors = [];
-
-    const warning_box = document.getElementById("warning_messages");
-    warning_box.style.display = "none";
-    warning_box.innerHTML = "";
-    let warnings = [];
-
-    // Clear Previous Ranks
-    const r1 = document.getElementById("rank1");
-    const r2 = document.getElementById("rank2");
-    const r3 = document.getElementById("rank3");
-    r1.textContent = "Rank 1:";
-    r2.textContent = "Rank 2:";
-    r3.textContent = "Rank 3:";
+    // Clear Previous Messages and Ranks
+    clear_messages();
+    clear_ranks();
 
     // Location Data Processing
     const city1 = document.querySelector("[name='city1']").value.trim();
@@ -161,6 +171,9 @@ if (trip_form_wrap) {
     const endDay = parseInt(document.getElementById("end_day").value);
     
     // Location and Date Data Input Validation
+    let errors = [];
+    const error_box = document.getElementById("error_messages");
+
     if (has_duplicate_locations(loc1, loc2, loc3)) {
         errors.push("ERROR duplicate locations aren't allowed");
     }
@@ -193,21 +206,21 @@ if (trip_form_wrap) {
     }
     
     if (errors.length > 0) {
-        errorBox.style.display = "block";
+        error_box.style.display = "block";
         const header = document.createElement("p");
         header.textContent = "ERROR(S) FOUND:";
         header.style.fontWeight = "bold";
-        errorBox.appendChild(header);
+        error_box.appendChild(header);
   
         errors.forEach(msg => {
             const p = document.createElement("p");
             p.textContent = msg;
-            errorBox.appendChild(p);
+            error_box.appendChild(p);
         });
   
         const footer = document.createElement("p");
         footer.textContent = "Please fix the error(s) and resubmit";
-        errorBox.appendChild(footer);
+        error_box.appendChild(footer);
   
         return; // terminate function
     }
@@ -227,8 +240,10 @@ if (trip_form_wrap) {
     const tripName = document.getElementById("trip_name").value.trim();
 
     // Construct Input JSON Object
+    // current_user_id
+    const userId = sessionStorage.getItem("current_user_id");
     const tripData = {
-        user_id: 1, // FIGURE OUT USER_ID LATER
+        user_id: userId,
         trip_name: tripName,
         date_range: {
             start_month: startMonth,
@@ -272,6 +287,9 @@ if (trip_form_wrap) {
     // Generate the Trip
 
     // Update Rank Elements
+    const r1 = document.getElementById("rank1");
+    const r2 = document.getElementById("rank2");
+    const r3 = document.getElementById("rank3");
     r1.textContent = `Rank 1: ${test_json_output.rank_1_location.city}, 
     ${test_json_output.rank_1_location.state}`;
 	r2.textContent = `Rank 2: ${test_json_output.rank_2_location.city}, 
@@ -280,6 +298,9 @@ if (trip_form_wrap) {
     ${test_json_output.rank_3_location.state}`;
 
     // Update Checkbox and Trip Count Warnings
+    let warnings = [];
+    const warning_box = document.getElementById("warning_messages");
+
     // Test trip_count:
     const trip_count = 4;
 
@@ -333,63 +354,56 @@ if (trip_form_wrap) {
     });
 }
 
-// SAVE FUNCTION
-const save_button_wrap = async () => {
-	// Retrieve stored trip data
-	const stored_trip = sessionStorage.getItem("current_trip_data");
+// CONFIRM TRIP BUTTON
+const save_button_wrap = document.getElementById("confirm_button");
+if (save_button_wrap) {
+	save_button.addEventListener("click", async () => {
+        // Retrieve stored trip data
+        const stored_trip = sessionStorage.getItem("current_trip_data");
 
-	if (!stored_trip) {
-		return;
-	}
+        if (!stored_trip) {
+            return;
+        }
 
-	// Parse and format JSON
-	const trip_data = JSON.parse(stored_trip);
+        // Parse and format JSON
+        const trip_data = JSON.parse(stored_trip);
 
-	const formatted_trip_json = {
-		user_id: trip_data.user_id,
-		trip_name: trip_data.trip_name,
-		date_range: {
-			start_month: trip_data.date_range.start_month,
-			start_day: trip_data.date_range.start_day,
-			end_month: trip_data.date_range.end_month,
-			end_day: trip_data.date_range.end_day
-		},
-		preferences: {
-			temp: trip_data.preferences.temp,
-			precp: trip_data.preferences.precp
-		},
-		locations: [
-			{ city: trip_data.locations[0].city, state: trip_data.locations[0].state },
-			{ city: trip_data.locations[1].city, state: trip_data.locations[1].state },
-			{ city: trip_data.locations[2].city, state: trip_data.locations[2].state }
-		]
-	};
-};
+        const formatted_trip_json = {
+            user_id: trip_data.user_id,
+            trip_name: trip_data.trip_name,
+            date_range: {
+                start_month: trip_data.date_range.start_month,
+                start_day: trip_data.date_range.start_day,
+                end_month: trip_data.date_range.end_month,
+                end_day: trip_data.date_range.end_day
+            },
+            preferences: {
+                temp: trip_data.preferences.temp,
+                precp: trip_data.preferences.precp
+            },
+            locations: [
+                { city: trip_data.locations[0].city, state: trip_data.locations[0].state },
+                { city: trip_data.locations[1].city, state: trip_data.locations[1].state },
+                { city: trip_data.locations[2].city, state: trip_data.locations[2].state }
+            ]
+        };
 
-// DISCARD FUNCTION
-const discard_button_wrap = () => {
-	// Remove stored trip data
-	sessionStorage.removeItem("current_trip_data");
+        // Clear the page
+        clear_messages();
+        clear_ranks();
+        clear_form_inputs();
+        sessionStorage.removeItem("current_trip_data");
+    });
+}
 
-	// Reset UI elements
-	const error_box = document.getElementById("error_messages");
-	const warning_box = document.getElementById("warning_messages");
-	const rank_1_box = document.getElementById("rank1");
-	const rank_2_box = document.getElementById("rank2");
-	const rank_3_box = document.getElementById("rank3");
-
-	// Hide error/warning boxes
-	error_box.style.display = "none";
-	error_box.innerHTML = "";
-	warning_box.style.display = "none";
-	warning_box.innerHTML = "";
-
-	// Reset rank boxes
-	rank_1_box.textContent = "Rank 1:";
-	rank_2_box.textContent = "Rank 2:";
-	rank_3_box.textContent = "Rank 3:";
-
-	// Reset all form inputs
-	const form = document.getElementById("trip_form");
-	if (form) form.reset();
-};
+// DISCARD TRIP BUTTON
+const discard_button_wrap = document.getElementById("discard_button");
+if (discard_button_wrap) {
+    save_button.addEventListener("click", () => {
+        // Clear the page
+        clear_messages();
+        clear_ranks();
+        clear_form_inputs();
+        sessionStorage.removeItem("current_trip_data");
+    });
+}
