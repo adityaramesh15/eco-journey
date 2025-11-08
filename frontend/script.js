@@ -473,3 +473,119 @@ if (discard_button_wrap) {
         sessionStorage.removeItem("current_trip_data");
     });
 }
+
+// login page start
+// create user start
+const create_account_form_wrap = document.getElementById("create_account_form");
+if (create_account_form_wrap) {
+    create_account_form_wrap.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        
+        const username = document.getElementById("create_username").value.trim();
+        const password = document.getElementById("create_password").value.trim();
+        const error_box = document.getElementById("create_error_message");
+        
+        // Clear previous errors
+        error_box.textContent = "";
+        error_box.classList.remove("show");
+        
+        // Basic validation
+        if (!username || !password) {
+            error_box.textContent = "Please enter both username and password";
+            error_box.classList.add("show");
+            return;
+        }
+        
+        if (username.length < 3) {
+            error_box.textContent = "Username must be at least 3 characters";
+            error_box.classList.add("show");
+            return;
+        }
+        
+        if (password.length < 6) {
+            error_box.textContent = "Password must be at least 6 characters";
+            error_box.classList.add("show");
+            return;
+        }
+        
+        // 🆕 BACKEND INTEGRATION - Call backend API to create user
+        try {
+            const response = await fetch('/users', {  // ← Matches routes.py
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            if (response.ok) {  // ← Status 201
+                const data = await response.json();
+                alert("Account created successfully! Please log in.");
+                document.getElementById("create_account_form").reset();
+            } else if (response.status === 409) {  // ← Username exists
+                // 🆕 SPECIFIC ERROR HANDLING
+                error_box.textContent = "Username already exists";
+                error_box.classList.add("show");
+            } else {
+                const data = await response.json();
+                error_box.textContent = data.error || "Failed to create account";
+                error_box.classList.add("show");
+            }
+        } catch (error) {
+            console.error("Error creating user:", error);
+            error_box.textContent = "Connection error. Please try again.";
+            error_box.classList.add("show");
+        }
+    });
+}
+
+// login existing user start
+
+const login_form_wrap = document.getElementById("login_form");
+if (login_form_wrap) {
+    login_form_wrap.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        
+        const username = document.getElementById("login_username").value.trim();
+        const password = document.getElementById("login_password").value.trim();
+        const error_box = document.getElementById("login_error_message");
+        
+        // Clear previous errors
+        error_box.textContent = "";
+        error_box.classList.remove("show");
+        
+        // Basic validation
+        if (!username || !password) {
+            error_box.textContent = "Please enter both username and password";
+            error_box.classList.add("show");
+            return;
+        }
+        
+        // 🆕 BACKEND INTEGRATION - Call backend API to login
+        try {
+            const response = await fetch('/auth/login', {  // ← Matches routes.py
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            if (response.ok) {  // ← Status 200
+                const data = await response.json();
+                // 🆕 STORE USER SESSION
+                sessionStorage.setItem("current_user_id", data.user_id);
+                // 🆕 REDIRECT TO HOME
+                window.location.href = "home.html";
+            } else if (response.status === 401) {  // ← Invalid credentials
+                // 🆕 SPECIFIC ERROR HANDLING
+                error_box.textContent = "Invalid username or password";
+                error_box.classList.add("show");
+            } else {
+                const data = await response.json();
+                error_box.textContent = data.error || "Login failed";
+                error_box.classList.add("show");
+            }
+        } catch (error) {
+            console.error("Error logging in:", error);
+            error_box.textContent = "Connection error. Please try again.";
+            error_box.classList.add("show");
+        }
+    });
+}
