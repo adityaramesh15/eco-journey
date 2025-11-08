@@ -1,3 +1,137 @@
+.login_page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: 2%;
+    background-color: #f5f5f5;
+}
+
+.login_page .page-header {
+    background-color: #fff;
+    border: 2px solid #333;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 900px;
+}
+
+.login_page .page-header h1 {
+    font-size: 2em;
+    font-weight: normal;
+    margin: 0;
+}
+
+.login_page .main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 900px;
+    width: 90%;
+}
+
+.login_page .form-section {
+    background-color: #fff;
+    padding: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.login_page .form-section h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.login_page .input-group {
+    background-color: #fff;
+    border: 2px solid #333;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.login_page .input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.login_page .input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.login_page .input-group input:focus {
+    outline: none;
+    border-color: #666;
+    background-color: #fff;
+}
+
+.login_page .error-message {
+    background-color: #fff;
+    border: 2px solid #d32f2f;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #d32f2f;
+    min-height: 50px;
+    display: none;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.login_page .error-message.show {
+    display: block;
+}
+
+.login_page .btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1em;
+    border: 2px solid #333;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.login_page .btn:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.login_page .btn:active {
+    transform: scale(0.98);
+}
+
+/* Responsive Design for Login Page */
+@media (max-width: 768px) {
+    .login_page .main-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .login_page .page-header {
+        padding: 20px;
+    }
+
+    .login_page .page-header h1 {
+        font-size: 1.5em;
+    }
+
+    .login_page .form-section {
+        padding: 20px;
+    }
+}
+
+/* End login */
+
 .home_page {
     display: flex;
     flex-direction: column;
