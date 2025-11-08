@@ -80,41 +80,91 @@ function has_duplicate_locations(loc1, loc2, loc3) {
 }
 
 async function check_city_exists(city, state) {
-    // try {
-    //     // Encode user input to make it URL-safe
-    //     const response = await fetch(`/check?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
+    try {
+        // Encode user input
+        const response = await fetch(`/check?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
         
-    //     // If server returns an error (e.g., 400)
-    //     if (!response.ok) {
-    //         console.error(`Server error: ${response.status}`);
-    //         return false;
-    //     }
+        // If server returns an error
+        if (!response.ok) {
+            console.error(`Server error: ${response.status}`);
+            return false;
+        }
         
-    //     // Parse JSON response
-    //     const data = await response.json();
+        // Parse JSON response
+        const data = await response.json();
         
-    //     // Expected response shape: { "exists": true } or { "exists": false }
-    //     if (typeof data.exists === "boolean") {
-    //         return data.exists;
-    //     }
+        // Expected response shape: { "exists": true } or { "exists": false }
+        if (typeof data.exists === "boolean") {
+            return data.exists;
+        }
   
-    //     // In case backend returns something unexpected
-    //     console.error("Unexpected response format:", data);
-    //     return false;
+        // In case backend returns something unexpected
+        console.error("Unexpected response format:", data);
+        return false;
 
-    // } catch (error) {
-    //     console.error("Network or parsing error:", error);
-    //     return false;
-    // }
+    } catch (error) {
+        console.error("Network or parsing error:", error);
+        return false;
+    }
 
     // Non-Backend Testing
-    if (city == "Fake City") {
-        return false
-    }
-    if (city == "Real City") {
-        return true
-    }
-    return true;
+    // if (city == "Fake City") {
+    //     return false
+    // }
+    // if (city == "Real City") {
+    //     return true
+    // }
+    // return true;
+}
+
+// TRIP COUNT FUNCTION
+
+async function get_trip_count(user_id) {
+	try {
+		const response = await fetch(`/users/${user_id}/trips/count`);
+
+		if (!response.ok) {
+			console.error(`Failed to fetch trip count: ${response.status}`);
+			return null;
+		}
+
+		const data = await response.json();
+		if (typeof data.count === "number") {
+			return data.count;
+		} else {
+			console.error("Unexpected response format:", data);
+			return null;
+		}
+	} catch (error) {
+		console.error("Error fetching trip count:", error);
+		return null;
+	}
+}
+
+// TRIP RANK FUNCTION
+
+async function get_trip_rank(input_json) {
+	try {
+		const response = await fetch("/trips/rank", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(input_json)
+		});
+
+		if (!response.ok) {
+			console.error(`Failed to fetch trip rank: ${response.status}`);
+			return null;
+		}
+
+		const data = await response.json();
+		console.log("Trip rank response:", data);
+		return data;
+	} catch (error) {
+		console.error("Error fetching trip rank:", error);
+		return null;
+	}
 }
 
 // RESET PAGE HELPER FUNCTIONS
@@ -249,7 +299,7 @@ if (trip_form_wrap) {
     // Construct Input JSON Object
     // current_user_id
     const userId = sessionStorage.getItem("current_user_id");
-    const tripData = {
+    const trip_input_data = {
         user_id: userId,
         trip_name: tripName,
         date_range: {
@@ -270,26 +320,28 @@ if (trip_form_wrap) {
     // Generate Output JSON Object
 
     // TEST JSON OUTPUT - to check for proper trip generation:
-    const test_json_output = {
-        rank_1_location: {
-            city: "Chicago",
-            state: "IL",
-            bad_days: true,
-            rainy_days: true
-        },
-        rank_2_location: {
-            city: "Denver",
-            state: "CO",
-            bad_days: true,
-            rainy_days: true
-        },
-        rank_3_location: {
-            city: "Miami",
-            state: "FL",
-            bad_days: true,
-            rainy_days: true
-        }
-    };
+    // const trip_output_data = {
+    //     rank_1_location: {
+    //         city: "Chicago",
+    //         state: "IL",
+    //         bad_days: true,
+    //         rainy_days: true
+    //     },
+    //     rank_2_location: {
+    //         city: "Denver",
+    //         state: "CO",
+    //         bad_days: true,
+    //         rainy_days: true
+    //     },
+    //     rank_3_location: {
+    //         city: "Miami",
+    //         state: "FL",
+    //         bad_days: true,
+    //         rainy_days: true
+    //     }
+    // };
+
+    const trip_output_data = await get_trip_rank(trip_input_data);
 
     // Generate the Trip
 
@@ -297,26 +349,27 @@ if (trip_form_wrap) {
     const r1 = document.getElementById("rank1");
     const r2 = document.getElementById("rank2");
     const r3 = document.getElementById("rank3");
-    r1.textContent = `Rank 1: ${test_json_output.rank_1_location.city}, 
-    ${test_json_output.rank_1_location.state}`;
-	r2.textContent = `Rank 2: ${test_json_output.rank_2_location.city}, 
-    ${test_json_output.rank_2_location.state}`;
-	r3.textContent = `Rank 3: ${test_json_output.rank_3_location.city}, 
-    ${test_json_output.rank_3_location.state}`;
+    r1.textContent = `Rank 1: ${trip_output_data.rank_1_location.city}, 
+    ${trip_output_data.rank_1_location.state}`;
+	r2.textContent = `Rank 2: ${trip_output_data.rank_2_location.city}, 
+    ${trip_output_data.rank_2_location.state}`;
+	r3.textContent = `Rank 3: ${trip_output_data.rank_3_location.city}, 
+    ${trip_output_data.rank_3_location.state}`;
 
     // Update Checkbox and Trip Count Warnings
     let warnings = [];
     const warning_box = document.getElementById("warning_messages");
 
-    // Test trip_count:
-    const trip_count = 4;
+    // Get Trip Count
+    // const trip_count = 4;
+    const trip_count = await get_trip_count(userId);
 
     if (trip_count >= 5) {
         warnings.push("WARNING you've reached your 5 trip limit, saving this trip will replace your oldest trip");
     }
 
     let bad_day_locations = [];
-    for (const [key, location] of Object.entries(test_json_output)) {
+    for (const [key, location] of Object.entries(trip_output_data)) {
         if (location.bad_days === true) {
             bad_day_locations.push(`${location.city}, ${location.state}`);
         }
@@ -326,7 +379,7 @@ if (trip_form_wrap) {
     }
 
     let rainy_day_locations = [];
-    for (const [key, location] of Object.entries(test_json_output)) {
+    for (const [key, location] of Object.entries(trip_output_data)) {
         if (location.rainy_days === true) {
             rainy_day_locations.push(`${location.city}, ${location.state}`);
         }
@@ -355,9 +408,8 @@ if (trip_form_wrap) {
     }
     
     // Save JSON Data to Memory - so it can be used by save function
-    sessionStorage.setItem("current_trip_data", JSON.stringify(test_json_output));
-    return;
-
+    sessionStorage.setItem("current_trip_input_data", JSON.stringify(trip_input_data));
+    sessionStorage.setItem("current_trip_output_data", JSON.stringify(trip_output_data));
     });
 }
 
@@ -366,30 +418,32 @@ const save_button_wrap = document.getElementById("confirm_button");
 if (save_button_wrap) {
 	save_button_wrap.addEventListener("click", async () => {
         // Retrieve stored trip data
-        // const stored_trip = sessionStorage.getItem("current_trip_data");
+		const stored_input = sessionStorage.getItem("current_trip_input_data");
+		const stored_output = sessionStorage.getItem("current_trip_output_data");
 
         // Parse and format JSON
-        // const trip_data = JSON.parse(stored_trip);
+		const trip_input_data = JSON.parse(stored_input);
+		const trip_output_data = JSON.parse(stored_output);
 
-        // const formatted_trip_json = {
-        //     user_id: trip_data.user_id,
-        //     trip_name: trip_data.trip_name,
-        //     date_range: {
-        //         start_month: trip_data.date_range.start_month,
-        //         start_day: trip_data.date_range.start_day,
-        //         end_month: trip_data.date_range.end_month,
-        //         end_day: trip_data.date_range.end_day
-        //     },
-        //     preferences: {
-        //         temp: trip_data.preferences.temp,
-        //         precp: trip_data.preferences.precp
-        //     },
-        //     locations: [
-        //         { city: trip_data.locations[0].city, state: trip_data.locations[0].state },
-        //         { city: trip_data.locations[1].city, state: trip_data.locations[1].state },
-        //         { city: trip_data.locations[2].city, state: trip_data.locations[2].state }
-        //     ]
-        // };
+        const formatted_trip_json = {
+            user_id: trip_data.user_id,
+            trip_name: trip_data.trip_name,
+            date_range: {
+                start_month: trip_data.date_range.start_month,
+                start_day: trip_data.date_range.start_day,
+                end_month: trip_data.date_range.end_month,
+                end_day: trip_data.date_range.end_day
+            },
+            preferences: {
+                temp: trip_data.preferences.temp,
+                precp: trip_data.preferences.precp
+            },
+            locations: [
+                { city: trip_data.locations[0].city, state: trip_data.locations[0].state },
+                { city: trip_data.locations[1].city, state: trip_data.locations[1].state },
+                { city: trip_data.locations[2].city, state: trip_data.locations[2].state }
+            ]
+        };
 
         // Generate Success Message
         const success_box = document.getElementById("success_message");
