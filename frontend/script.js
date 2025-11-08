@@ -142,6 +142,12 @@ function clear_form_inputs() {
 	if (form) form.reset();
 }
 
+function clear_success_message() {
+    const success_box = document.getElementById("success_message");
+    success_box.style.display = "none";
+	success_box.textContent = "";
+}
+
 // TRIP FORM PROCESSOR AND GENERATOR FUNCTION
 
 const trip_form_wrap = document.getElementById("trip_form");
@@ -152,6 +158,7 @@ if (trip_form_wrap) {
     // Clear Previous Messages and Ranks
     clear_messages();
     clear_ranks();
+    clear_success_message();
 
     // Location Data Processing
     const city1 = document.querySelector("[name='city1']").value.trim();
@@ -357,36 +364,37 @@ if (trip_form_wrap) {
 // CONFIRM TRIP BUTTON
 const save_button_wrap = document.getElementById("confirm_button");
 if (save_button_wrap) {
-	save_button.addEventListener("click", async () => {
+	save_button_wrap.addEventListener("click", async () => {
         // Retrieve stored trip data
-        const stored_trip = sessionStorage.getItem("current_trip_data");
-
-        if (!stored_trip) {
-            return;
-        }
+        // const stored_trip = sessionStorage.getItem("current_trip_data");
 
         // Parse and format JSON
-        const trip_data = JSON.parse(stored_trip);
+        // const trip_data = JSON.parse(stored_trip);
 
-        const formatted_trip_json = {
-            user_id: trip_data.user_id,
-            trip_name: trip_data.trip_name,
-            date_range: {
-                start_month: trip_data.date_range.start_month,
-                start_day: trip_data.date_range.start_day,
-                end_month: trip_data.date_range.end_month,
-                end_day: trip_data.date_range.end_day
-            },
-            preferences: {
-                temp: trip_data.preferences.temp,
-                precp: trip_data.preferences.precp
-            },
-            locations: [
-                { city: trip_data.locations[0].city, state: trip_data.locations[0].state },
-                { city: trip_data.locations[1].city, state: trip_data.locations[1].state },
-                { city: trip_data.locations[2].city, state: trip_data.locations[2].state }
-            ]
-        };
+        // const formatted_trip_json = {
+        //     user_id: trip_data.user_id,
+        //     trip_name: trip_data.trip_name,
+        //     date_range: {
+        //         start_month: trip_data.date_range.start_month,
+        //         start_day: trip_data.date_range.start_day,
+        //         end_month: trip_data.date_range.end_month,
+        //         end_day: trip_data.date_range.end_day
+        //     },
+        //     preferences: {
+        //         temp: trip_data.preferences.temp,
+        //         precp: trip_data.preferences.precp
+        //     },
+        //     locations: [
+        //         { city: trip_data.locations[0].city, state: trip_data.locations[0].state },
+        //         { city: trip_data.locations[1].city, state: trip_data.locations[1].state },
+        //         { city: trip_data.locations[2].city, state: trip_data.locations[2].state }
+        //     ]
+        // };
+
+        // Generate Success Message
+        const success_box = document.getElementById("success_message");
+        success_box.style.display = "block";
+        success_box.textContent = "Trip confirmed successfully";
 
         // Clear the page
         clear_messages();
@@ -399,7 +407,11 @@ if (save_button_wrap) {
 // DISCARD TRIP BUTTON
 const discard_button_wrap = document.getElementById("discard_button");
 if (discard_button_wrap) {
-    save_button.addEventListener("click", () => {
+    discard_button_wrap.addEventListener("click", () => {
+        // Generate Success Message
+        const success_box = document.getElementById("success_message");
+        success_box.style.display = "block";
+        success_box.textContent = "Trip discarded successfully";
         // Clear the page
         clear_messages();
         clear_ranks();
