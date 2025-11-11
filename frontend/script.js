@@ -15,7 +15,10 @@ if (load_button_wrap) {
 const logout_button_wrap = document.getElementById("logout_button");
 if (logout_button_wrap){
     logout_button_wrap.addEventListener("click", () => 
-    {window.location.href="login.html";} );
+    {
+        sessionStorage.clear();
+        window.location.href="login.html";
+    } );
 }
 
 const home_button_wrap = document.getElementById("home_button");
@@ -414,6 +417,7 @@ if (trip_form_wrap) {
 }
 
 // CONFIRM TRIP BUTTON
+
 const save_button_wrap = document.getElementById("confirm_button");
 if (save_button_wrap) {
 	save_button_wrap.addEventListener("click", async () => {
@@ -421,44 +425,97 @@ if (save_button_wrap) {
 		const stored_input = sessionStorage.getItem("current_trip_input_data");
 		const stored_output = sessionStorage.getItem("current_trip_output_data");
 
+        if (!stored_input || !stored_output) {
+			console.error("Missing trip data in session storage.");
+			return;
+		}
+
         // Parse and format JSON
 		const trip_input_data = JSON.parse(stored_input);
 		const trip_output_data = JSON.parse(stored_output);
 
+        // Map ranks from output to input locations
+		const ranked_locations = trip_input_data.locations.map((loc) => {
+			if (
+				loc.city === trip_output_data.rank_1_location.city &&
+				loc.state === trip_output_data.rank_1_location.state
+			) {
+				return { ...loc, rank: 1 };
+			} else if (
+				loc.city === trip_output_data.rank_2_location.city &&
+				loc.state === trip_output_data.rank_2_location.state
+			) {
+				return { ...loc, rank: 2 };
+			} else if (
+				loc.city === trip_output_data.rank_3_location.city &&
+				loc.state === trip_output_data.rank_3_location.state
+			) {
+				return { ...loc, rank: 3 };
+			}
+			// fallback in case something doesn't match
+			return { ...loc, rank: null };
+		});
+
         const formatted_trip_json = {
-            user_id: trip_data.user_id,
-            trip_name: trip_data.trip_name,
-            date_range: {
-                start_month: trip_data.date_range.start_month,
-                start_day: trip_data.date_range.start_day,
-                end_month: trip_data.date_range.end_month,
-                end_day: trip_data.date_range.end_day
-            },
-            preferences: {
-                temp: trip_data.preferences.temp,
-                precp: trip_data.preferences.precp
-            },
-            locations: [
-                { city: trip_data.locations[0].city, state: trip_data.locations[0].state },
-                { city: trip_data.locations[1].city, state: trip_data.locations[1].state },
-                { city: trip_data.locations[2].city, state: trip_data.locations[2].state }
-            ]
+			user_id: trip_input_data.user_id,
+			trip_name: trip_input_data.trip_name,
+			date_range: {
+				start_month: trip_input_data.date_range.start_month,
+				start_day: trip_input_data.date_range.start_day,
+				end_month: trip_input_data.date_range.end_month,
+				end_day: trip_input_data.date_range.end_day
+			},
+			preferences: {
+				temp: trip_input_data.preferences.temp,
+				precp: trip_input_data.preferences.precp
+			},
+			locations: ranked_locations
         };
 
-        // Generate Success Message
-        const success_box = document.getElementById("success_message");
-        success_box.style.display = "block";
-        success_box.textContent = "Trip confirmed successfully";
+        // Backend connection
+		try {
+			const response = await fetch("/trips", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(formatted_trip_json)
+			});
 
-        // Clear the page
-        clear_messages();
-        clear_ranks();
-        clear_form_inputs();
-        sessionStorage.removeItem("current_trip_data");
+			if (response.ok) {
+				const saved_trip = await response.json();
+				console.log("Trip saved successfully:", saved_trip);
+
+				// Success message
+				const success_box = document.getElementById("success_message");
+				success_box.style.display = "block";
+				success_box.textContent = "Trip confirmed and saved successfully!";
+
+				// Reset UI and storage
+				clear_messages();
+				clear_ranks();
+				clear_form_inputs();
+				sessionStorage.removeItem("current_trip_input_data");
+				sessionStorage.removeItem("current_trip_output_data");
+			} else {
+				const error_data = await response.json();
+				console.error("Failed to save trip:", error_data.error || response.statusText);
+
+				const success_box = document.getElementById("success_message");
+				success_box.style.display = "block";
+				success_box.textContent = "Failed to save trip. Please try again";
+			}
+		} catch (error) {
+			console.error("Network or server error:", error);
+			const success_box = document.getElementById("success_message");
+			success_box.style.display = "block";
+			success_box.textContent = "Network error while saving trip";
+		}
     });
 }
 
 // DISCARD TRIP BUTTON
+
 const discard_button_wrap = document.getElementById("discard_button");
 if (discard_button_wrap) {
     discard_button_wrap.addEventListener("click", () => {
@@ -508,20 +565,20 @@ if (create_account_form_wrap) {
             return;
         }
         
-        // 🆕 BACKEND INTEGRATION - Call backend API to create user
+        // BACKEND INTEGRATION - Call backend API to create user
         try {
-            const response = await fetch('/users', {  // ← Matches routes.py
+            const response = await fetch('/users', {  // Matches routes.py
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
             
-            if (response.ok) {  // ← Status 201
+            if (response.ok) {  // Status 201
                 const data = await response.json();
                 alert("Account created successfully! Please log in.");
                 document.getElementById("create_account_form").reset();
-            } else if (response.status === 409) {  // ← Username exists
-                // 🆕 SPECIFIC ERROR HANDLING
+            } else if (response.status === 409) {  // Username exists
+                // SPECIFIC ERROR HANDLING
                 error_box.textContent = "Username already exists";
                 error_box.classList.add("show");
             } else {
@@ -559,9 +616,9 @@ if (login_form_wrap) {
             return;
         }
         
-        // 🆕 BACKEND INTEGRATION - Call backend API to login
+        // BACKEND INTEGRATION - Call backend API to login
         try {
-            const response = await fetch('/auth/login', {  // ← Matches routes.py
+            const response = await fetch('/auth/login', {  // Matches routes.py
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -569,12 +626,12 @@ if (login_form_wrap) {
             
             if (response.ok) {  // ← Status 200
                 const data = await response.json();
-                // 🆕 STORE USER SESSION
+                // STORE USER SESSION
                 sessionStorage.setItem("current_user_id", data.user_id);
-                // 🆕 REDIRECT TO HOME
+                // REDIRECT TO HOME
                 window.location.href = "home.html";
-            } else if (response.status === 401) {  // ← Invalid credentials
-                // 🆕 SPECIFIC ERROR HANDLING
+            } else if (response.status === 401) {  // Invalid credentials
+                // SPECIFIC ERROR HANDLING
                 error_box.textContent = "Invalid username or password";
                 error_box.classList.add("show");
             } else {
