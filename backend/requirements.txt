@@ -3,3 +3,4 @@ python-dotenv
 mysqlclient
 scikit-learn
 numpy
+flask-cors

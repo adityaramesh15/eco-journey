@@ -1,3 +1,6 @@
+// BASE URL
+const API_BASE_URL = 'http://127.0.0.1:5050'
+
 // NAVIGATION BUTTONS
 
 const create_button_wrap = document.getElementById("create_button");
@@ -85,7 +88,7 @@ function has_duplicate_locations(loc1, loc2, loc3) {
 async function check_city_exists(city, state) {
     try {
         // Encode user input
-        const response = await fetch(`/check?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
+        const response = await fetch(`${API_BASE_URL}/cities/check?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
         
         // If server returns an error
         if (!response.ok) {
@@ -123,51 +126,51 @@ async function check_city_exists(city, state) {
 // TRIP COUNT FUNCTION
 
 async function get_trip_count(user_id) {
-	try {
-		const response = await fetch(`/users/${user_id}/trips/count`);
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/${user_id}/trips/count`);
 
-		if (!response.ok) {
-			console.error(`Failed to fetch trip count: ${response.status}`);
-			return null;
-		}
+        if (!response.ok) {
+            console.error(`Failed to fetch trip count: ${response.status}`);
+            return null;
+        }
 
-		const data = await response.json();
-		if (typeof data.count === "number") {
-			return data.count;
-		} else {
-			console.error("Unexpected response format:", data);
-			return null;
-		}
-	} catch (error) {
-		console.error("Error fetching trip count:", error);
-		return null;
-	}
+        const data = await response.json();
+        if (typeof data.count === "number") {
+            return data.count;
+        } else {
+            console.error("Unexpected response format:", data);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching trip count:", error);
+        return null;
+    }
 }
 
 // TRIP RANK FUNCTION
 
 async function get_trip_rank(input_json) {
-	try {
-		const response = await fetch("/trips/rank", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(input_json)
-		});
+    try {
+        const response = await fetch(`${API_BASE_URL}/trips/rank`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(input_json)
+        });
 
-		if (!response.ok) {
-			console.error(`Failed to fetch trip rank: ${response.status}`);
-			return null;
-		}
+        if (!response.ok) {
+            console.error(`Failed to fetch trip rank: ${response.status}`);
+            return null;
+        }
 
-		const data = await response.json();
-		console.log("Trip rank response:", data);
-		return data;
-	} catch (error) {
-		console.error("Error fetching trip rank:", error);
-		return null;
-	}
+        const data = await response.json();
+        console.log("Trip rank response:", data);
+        return data;
+    } catch (error) {
+        console.error("Error fetching trip rank:", error);
+        return null;
+    }
 }
 
 // RESET PAGE HELPER FUNCTIONS
@@ -191,14 +194,14 @@ function clear_ranks() {
 }
 
 function clear_form_inputs() {
-	const form = document.getElementById("trip_form");
-	if (form) form.reset();
+    const form = document.getElementById("trip_form");
+    if (form) form.reset();
 }
 
 function clear_success_message() {
     const success_box = document.getElementById("success_message");
     success_box.style.display = "none";
-	success_box.textContent = "";
+    success_box.textContent = "";
 }
 
 // TRIP FORM PROCESSOR AND GENERATOR FUNCTION
@@ -354,9 +357,9 @@ if (trip_form_wrap) {
     const r3 = document.getElementById("rank3");
     r1.textContent = `Rank 1: ${trip_output_data.rank_1_location.city}, 
     ${trip_output_data.rank_1_location.state}`;
-	r2.textContent = `Rank 2: ${trip_output_data.rank_2_location.city}, 
+    r2.textContent = `Rank 2: ${trip_output_data.rank_2_location.city}, 
     ${trip_output_data.rank_2_location.state}`;
-	r3.textContent = `Rank 3: ${trip_output_data.rank_3_location.city}, 
+    r3.textContent = `Rank 3: ${trip_output_data.rank_3_location.city}, 
     ${trip_output_data.rank_3_location.state}`;
 
     // Update Checkbox and Trip Count Warnings
@@ -420,97 +423,97 @@ if (trip_form_wrap) {
 
 const save_button_wrap = document.getElementById("confirm_button");
 if (save_button_wrap) {
-	save_button_wrap.addEventListener("click", async () => {
+    save_button_wrap.addEventListener("click", async () => {
         // Retrieve stored trip data
-		const stored_input = sessionStorage.getItem("current_trip_input_data");
-		const stored_output = sessionStorage.getItem("current_trip_output_data");
+        const stored_input = sessionStorage.getItem("current_trip_input_data");
+        const stored_output = sessionStorage.getItem("current_trip_output_data");
 
         if (!stored_input || !stored_output) {
-			console.error("Missing trip data in session storage.");
-			return;
-		}
+            console.error("Missing trip data in session storage.");
+            return;
+        }
 
         // Parse and format JSON
-		const trip_input_data = JSON.parse(stored_input);
-		const trip_output_data = JSON.parse(stored_output);
+        const trip_input_data = JSON.parse(stored_input);
+        const trip_output_data = JSON.parse(stored_output);
 
         // Map ranks from output to input locations
-		const ranked_locations = trip_input_data.locations.map((loc) => {
-			if (
-				loc.city === trip_output_data.rank_1_location.city &&
-				loc.state === trip_output_data.rank_1_location.state
-			) {
-				return { ...loc, rank: 1 };
-			} else if (
-				loc.city === trip_output_data.rank_2_location.city &&
-				loc.state === trip_output_data.rank_2_location.state
-			) {
-				return { ...loc, rank: 2 };
-			} else if (
-				loc.city === trip_output_data.rank_3_location.city &&
-				loc.state === trip_output_data.rank_3_location.state
-			) {
-				return { ...loc, rank: 3 };
-			}
-			// fallback in case something doesn't match
-			return { ...loc, rank: null };
-		});
+        const ranked_locations = trip_input_data.locations.map((loc) => {
+            if (
+                loc.city === trip_output_data.rank_1_location.city &&
+                loc.state === trip_output_data.rank_1_location.state
+            ) {
+                return { ...loc, rank: 1 };
+            } else if (
+                loc.city === trip_output_data.rank_2_location.city &&
+                loc.state === trip_output_data.rank_2_location.state
+            ) {
+                return { ...loc, rank: 2 };
+            } else if (
+                loc.city === trip_output_data.rank_3_location.city &&
+                loc.state === trip_output_data.rank_3_location.state
+            ) {
+                return { ...loc, rank: 3 };
+            }
+            // fallback in case something doesn't match
+            return { ...loc, rank: null };
+        });
 
         const formatted_trip_json = {
-			user_id: trip_input_data.user_id,
-			trip_name: trip_input_data.trip_name,
-			date_range: {
-				start_month: trip_input_data.date_range.start_month,
-				start_day: trip_input_data.date_range.start_day,
-				end_month: trip_input_data.date_range.end_month,
-				end_day: trip_input_data.date_range.end_day
-			},
-			preferences: {
-				temp: trip_input_data.preferences.temp,
-				precp: trip_input_data.preferences.precp
-			},
-			locations: ranked_locations
+            user_id: trip_input_data.user_id,
+            trip_name: trip_input_data.trip_name,
+            date_range: {
+                start_month: trip_input_data.date_range.start_month,
+                start_day: trip_input_data.date_range.start_day,
+                end_month: trip_input_data.date_range.end_month,
+                end_day: trip_input_data.date_range.end_day
+            },
+            preferences: {
+                temp: trip_input_data.preferences.temp,
+                precp: trip_input_data.preferences.precp
+            },
+            locations: ranked_locations
         };
 
         // Backend connection
-		try {
-			const response = await fetch("/trips", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify(formatted_trip_json)
-			});
+        try {
+            const response = await fetch(`${API_BASE_URL}/trips`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formatted_trip_json)
+            });
 
-			if (response.ok) {
-				const saved_trip = await response.json();
-				console.log("Trip saved successfully:", saved_trip);
+            if (response.ok) {
+                const saved_trip = await response.json();
+                console.log("Trip saved successfully:", saved_trip);
 
-				// Success message
-				const success_box = document.getElementById("success_message");
-				success_box.style.display = "block";
-				success_box.textContent = "Trip confirmed and saved successfully!";
+                // Success message
+                const success_box = document.getElementById("success_message");
+                success_box.style.display = "block";
+                success_box.textContent = "Trip confirmed and saved successfully!";
 
-				// Reset UI and storage
-				clear_messages();
-				clear_ranks();
-				clear_form_inputs();
-				sessionStorage.removeItem("current_trip_input_data");
-				sessionStorage.removeItem("current_trip_output_data");
-			} else {
-				const error_data = await response.json();
-				console.error("Failed to save trip:", error_data.error || response.statusText);
+                // Reset UI and storage
+                clear_messages();
+                clear_ranks();
+                clear_form_inputs();
+                sessionStorage.removeItem("current_trip_input_data");
+                sessionStorage.removeItem("current_trip_output_data");
+            } else {
+                const error_data = await response.json();
+                console.error("Failed to save trip:", error_data.error || response.statusText);
 
-				const success_box = document.getElementById("success_message");
-				success_box.style.display = "block";
-				success_box.textContent = "Failed to save trip. Please try again";
-			}
-		} catch (error) {
-			console.error("Network or server error:", error);
-			const success_box = document.getElementById("success_message");
-			success_box.style.display = "block";
-			success_box.textContent = "Network error while saving trip";
-		}
+                const success_box = document.getElementById("success_message");
+                success_box.style.display = "block";
+                success_box.textContent = "Failed to save trip. Please try again";
+            }
+        } catch (error) {
+            console.error("Network or server error:", error);
+            const success_box = document.getElementById("success_message");
+            success_box.style.display = "block";
+            success_box.textContent = "Network error while saving trip";
+        }
     });
 }
 
@@ -567,7 +570,7 @@ if (create_account_form_wrap) {
         
         // BACKEND INTEGRATION - Call backend API to create user
         try {
-            const response = await fetch('/users', {  // Matches routes.py
+            const response = await fetch(`${API_BASE_URL}/users`, {  // Matches routes.py
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -618,7 +621,7 @@ if (login_form_wrap) {
         
         // BACKEND INTEGRATION - Call backend API to login
         try {
-            const response = await fetch('/auth/login', {  // Matches routes.py
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {  // Matches routes.py
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
