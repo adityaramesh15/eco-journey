@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Load Your Trips</title>
+        <link rel = "stylesheet" href = "style.css"/>
+    </head>
+    <body>
+        <main class = "load_page">
+            <!-- Left side: Trip List -->
+            <section id="left_side_load">
+                <div class="return_home">
+                    <button id="home_button" type="button">Home</button>
+                </div>
+                <div class="return_home_spacer"></div>
+                
+                <div class="trip_list_header">
+                    <h2>Your Saved Trips</h2>
+                </div>
+                
+                <div id="trip_list_container">
+                    <!-- Trip items will be dynamically loaded here -->
+                    <!-- Example structure:
+                    <div class="trip_item" data-trip-id="1">
+                        <div class="trip_item_name">Summer Vacation 2025</div>
+                        <div class="trip_item_date">06/15 - 06/22</div>
+                    </div>
+                    -->
+                </div>
+                
+                <div id="no_trips_message" class="no_trips_message">
+                    No saved trips yet. Create your first trip!
+                </div>
+            </section>
+
+            <!-- Right side: Trip Editor -->
+            <section id="right_side_load">
+                <div id="trip_editor_placeholder" class="editor_placeholder">
+                    <p>Select a trip from the list to view and edit</p>
+                </div>
+                
+                <div id="trip_editor" class="trip_editor" style="display: none;">
+                    <form id="edit_trip_form">
+                        <section id="edit_trip_name_row">
+                            <label>Trip Name:</label>
+                            <input
+                                type="text"
+                                id="edit_trip_name"
+                                name="edit_trip_name"
+                                class="trip_name_input"
+                                placeholder="Enter trip name here"
+                                maxlength="255"
+                                required
+                            />
+                        </section>
+
+                        <section id="edit_location_inputs">
+                            <div class = "location_row">
+                                <label>Location #1:</label>
+                                <input
+                                    type="text"
+                                    id="edit_city1"
+                                    name="edit_city1"
+                                    placeholder="Enter city here"
+                                    class="city_input"
+                                    required
+                                />
+                                <input
+                                    id="edit_state1"
+                                    name="edit_state1"
+                                    class="state_input"
+                                    placeholder="State"
+                                    list="us-states"
+                                    maxlength="2"
+                                    pattern="^[A-Za-z]{2}"
+                                    required
+                                />
+                            </div>
+
+                            <div class = "location_row">
+                                <label>Location #2:</label>
+                                <input
+                                    type="text"
+                                    id="edit_city2"
+                                    name="edit_city2"
+                                    placeholder="Enter city here"
+                                    class="city_input"
+                                    required
+                                />
+                                <input
+                                    id="edit_state2"
+                                    name="edit_state2"
+                                    class="state_input"
+                                    placeholder="State"
+                                    list="us-states"
+                                    maxlength="2"
+                                    pattern="^[A-Za-z]{2}"
+                                    required
+                                />
+                            </div>
+
+                            <div class = "location_row">
+                                <label>Location #3:</label>
+                                <input
+                                    type="text"
+                                    id="edit_city3"
+                                    name="edit_city3"
+                                    placeholder="Enter city here"
+                                    class="city_input"
+                                    required
+                                />
+                                <input
+                                    id="edit_state3"
+                                    name="edit_state3"
+                                    class="state_input"
+                                    placeholder="State"
+                                    list="us-states"
+                                    maxlength="2"
+                                    pattern="^[A-Za-z]{2}"
+                                    required
+                                />
+                            </div>
+                        </section>
+
+                        <section id="edit_pref_inputs">
+                            <div class="pref_row">
+                                <label>Temperature Preference (°C): </label>
+                                <input
+                                    type="text"
+                                    id="edit_temp_pref"
+                                    name="edit_temp_pref"
+                                    class="temp_input"
+                                    pattern="^-?\d{1,3}(\.\d{1,3})?$"
+                                    placeholder="000.000"
+                                    required
+                                />
+                            </div>
+                            <div class="pref_row">
+                                <label>Precipitation Preference: </label>
+                                <select id="edit_precip_pref" name="edit_precip_pref" class="pref_select" required>
+                                    <option value = "high">High</option>
+                                    <option value = "medium">Medium</option>
+                                    <option value = "low">Low</option>
+                                </select>
+                            </div>
+                        </section>
+
+                        <section id = "edit_date_inputs">
+                            <label> Trip Date:</label>
+                            <div class="date_row">
+                                <label>From:</label>
+                                <input
+                                    type="number"
+                                    id="edit_start_month"
+                                    name="edit_start_month"
+                                    class="date_input"
+                                    placeholder="MM"
+                                    min="1"
+                                    max="12"
+                                    required
+                                />
+                                <input
+                                    type="number"
+                                    id="edit_start_day"
+                                    name="edit_start_day"
+                                    class="date_input"
+                                    placeholder="DD"
+                                    min="1"
+                                    max="31"
+                                    required
+                                />
+                                <label>Until:</label>
+                                <input
+                                    type="number"
+                                    id="edit_end_month"
+                                    name="edit_end_month"
+                                    class="date_input"
+                                    placeholder="MM"
+                                    min="1"
+                                    max="12"
+                                    required
+                                />
+                                <input
+                                    type="number"
+                                    id="edit_end_day"
+                                    name="edit_end_day"
+                                    class="date_input"
+                                    placeholder="DD"
+                                    min="1"
+                                    max="31"
+                                    required
+                                />
+                            </div>
+                        </section>
+
+                        <section id="edit_action_buttons">
+                            <button type="submit" id="save_changes_button">Save Changes</button>
+                            <button type="button" id="delete_trip_button">Delete Trip</button>
+                        </section>
+                    </form>
+                    
+                    <section class="success" id="load_success_message"></section>
+                    <section class="error" id="load_error_messages"></section>
+                </div>
+
+                <datalist id="us-states">
+                    <option value="AL"></option>
+                    <option value="AK"></option>
+                    <option value="AZ"></option>
+                    <option value="AR"></option>
+                    <option value="CA"></option>
+                    <option value="CO"></option>
+                    <option value="CT"></option>
+                    <option value="DE"></option>
+                    <option value="FL"></option>
+                    <option value="GA"></option>
+                    <option value="HI"></option>
+                    <option value="ID"></option>
+                    <option value="IL"></option>
+                    <option value="IN"></option>
+                    <option value="IA"></option>
+                    <option value="KS"></option>
+                    <option value="KY"></option>
+                    <option value="LA"></option>
+                    <option value="ME"></option>
+                    <option value="MD"></option>
+                    <option value="MA"></option>
+                    <option value="MI"></option>
+                    <option value="MN"></option>
+                    <option value="MS"></option>
+                    <option value="MO"></option>
+                    <option value="MT"></option>
+                    <option value="NE"></option>
+                    <option value="NV"></option>
+                    <option value="NH"></option>
+                    <option value="NJ"></option>
+                    <option value="NM"></option>
+                    <option value="NY"></option>
+                    <option value="NC"></option>
+                    <option value="ND"></option>
+                    <option value="OH"></option>
+                    <option value="OK"></option>
+                    <option value="OR"></option>
+                    <option value="PA"></option>
+                    <option value="RI"></option>
+                    <option value="SC"></option>
+                    <option value="SD"></option>
+                    <option value="TN"></option>
+                    <option value="TX"></option>
+                    <option value="UT"></option>
+                    <option value="VT"></option>
+                    <option value="VA"></option>
+                    <option value="WA"></option>
+                    <option value="WV"></option>
+                    <option value="WI"></option>
+                    <option value="WY"></option>
+                </datalist>
+            </section>
+        </main>
+        <script src="script.js"></script>
+    </body>
+</html>
