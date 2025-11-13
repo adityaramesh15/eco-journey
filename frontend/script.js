@@ -918,7 +918,7 @@ if (editTripForm) {
                 }
             };
             
-            const rankResponse = await fetch('/trips/rank', {
+            const rankResponse = await fetch(`${API_BASE_URL}/trips/rank`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(rankingData)
@@ -950,7 +950,7 @@ if (editTripForm) {
                 ]
             };
             
-            const updateResponse = await fetch(`/trips/${currentSelectedTripId}`, {
+            const updateResponse = await fetch(`${API_BASE_URL}/trips/${currentSelectedTripId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updateData)
@@ -995,7 +995,7 @@ if (deleteTripButton) {
         clearLoadMessages();
         
         try {
-            const response = await fetch(`/trips/${currentSelectedTripId}`, {
+            const response = await fetch(`${API_BASE_URL}/trips/${currentSelectedTripId}`, {
                 method: 'DELETE'
             });
             
