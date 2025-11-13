@@ -679,7 +679,7 @@ async function loadUserTrips() {
     const noTripsMessage = document.getElementById("no_trips_message");
     
     try {
-        const response = await fetch(`/trips?user_id=${userId}`);
+        const response = await fetch(`${API_BASE_URL}/trips?user_id=${userId}`);
         
         if (!response.ok) {
             throw new Error("Failed to load trips");
@@ -753,7 +753,7 @@ async function selectTrip(tripId) {
     
     // Fetch trip details
     try {
-        const response = await fetch(`/trips/${tripId}`);
+        const response = await fetch(`${API_BASE_URL}/trips/${tripId}`);
         
         if (!response.ok) {
             throw new Error("Failed to load trip details");
