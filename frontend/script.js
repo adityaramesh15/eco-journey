@@ -932,6 +932,19 @@ if (editTripForm) {
             const rankedData = await rankResponse.json();
             
             // Now update the trip with ranked locations
+            let loc10, loc20, loc30;
+
+            if (Array.isArray(rankedData)) {
+                loc10 = tripData.locations.find(l => l.rank === 1 || l.rank_order === 1) || tripData.locations[0];
+                loc20 = tripData.locations.find(l => l.rank === 2 || l.rank_order === 2) || tripData.locations[1];
+                loc30 = tripData.locations.find(l => l.rank === 3 || l.rank_order === 3) || tripData.locations[2];
+            } else {
+                // If the API returns Keys (e.g., { rank_1_location: {...} })
+                loc10 = rankedData.rank_1_location;
+                loc20 = rankedData.rank_2_location;
+                loc30 = rankedData.rank_3_location;
+            }
+
             const updateData = {
                 trip_name: tripName,
                 date_range: {
@@ -945,9 +958,9 @@ if (editTripForm) {
                     precp: pref_to_int(precipPref)
                 },
                 locations: [
-                    { city: rankedData.rank_1_location.city, state: rankedData.rank_1_location.state },
-                    { city: rankedData.rank_2_location.city, state: rankedData.rank_2_location.state },
-                    { city: rankedData.rank_3_location.city, state: rankedData.rank_3_location.state }
+                    { city: loc10.city || loc10.CITY, state: loc10.state || loc10.STATE, rank: 1 },
+                    { city: loc20.city || loc20.CITY, state: loc20.state || loc20.STATE, rank: 2 },
+                    { city: loc30.city || loc30.CITY, state: loc30.state || loc30.STATE, rank: 3 }
                 ]
             };
             
