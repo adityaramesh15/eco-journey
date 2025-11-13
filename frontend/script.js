@@ -715,24 +715,25 @@ async function loadUserTrips() {
 function createTripItem(trip) {
     const tripItem = document.createElement("div");
     tripItem.className = "trip_item";
-    tripItem.setAttribute("data-trip-id", trip.trip_id);
+    tripItem.setAttribute("data-trip-id", trip.id);
     
     const tripName = document.createElement("div");
     tripName.className = "trip_item_name";
-    tripName.textContent = trip.trip_name;
+    tripName.textContent = trip.name;
     
-    const tripDate = document.createElement("div");
-    tripDate.className = "trip_item_date";
-    // Format: MM/DD - MM/DD
-    const startDate = new Date(trip.start_date);
-    const endDate = new Date(trip.end_date);
-    tripDate.textContent = `${startDate.getMonth() + 1}/${startDate.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;
+    // const tripDate = document.createElement("div");
+    // tripDate.className = "trip_item_date";
+    // // Format: MM/DD - MM/DD
+    // const startDate = new Date(trip.start_date);
+    // const endDate = new Date(trip.end_date);
+    // tripDate.textContent = `${startDate.getMonth() + 1}/${startDate.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;\
+    
     
     tripItem.appendChild(tripName);
-    tripItem.appendChild(tripDate);
+    // ripItem.appendChild(tripDate);
     
     // Add click handler
-    tripItem.addEventListener("click", () => selectTrip(trip.trip_id));
+    tripItem.addEventListener("click", () => selectTrip(trip.id));
     
     return tripItem;
 }
