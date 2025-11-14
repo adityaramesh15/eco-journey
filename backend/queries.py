@@ -90,14 +90,27 @@ def get_user_trip_count(user_id):
 
 def save_new_trip(user_id, trip_name, start_date, end_date, precip_pref, temp_pref, locations):
     """
-    Transactional save of a new trip.
-    Locations MUST be an ordered list: [{'city': 'C1', 'state': 'S1'}, ...]
-    The index in the list determines the rank (0 -> rank 1, 1 -> rank 2, etc.)
+    Transactional save of a new trip with a FIFO cap of 5 trips.
+    If the user has 5 or more trips, the oldest one is deleted before adding the new one.
     """
     conn = db._get_connection()
     try:
         cur = conn.cursor()
         
+        cur.execute("SELECT COUNT(*) FROM TRIP_PLANS WHERE userID = %s", (user_id,))
+        print(f'HERE!')
+        trip_count = cur.fetchone()['COUNT(*)']
+        
+        if trip_count >= 5:
+            delete_sql = """
+                DELETE FROM TRIP_PLANS 
+                WHERE userID = %s 
+                ORDER BY tripID ASC 
+                LIMIT 1
+            """
+            cur.execute(delete_sql, (user_id,))
+            print(f"User {user_id} hit trip cap. Oldest trip deleted.")
+
         cur.execute(
             "INSERT INTO TRIP_PLANS (userID, planName, startDate, endDate) VALUES (%s, %s, %s, %s)",
             (user_id, trip_name, start_date, end_date)
@@ -115,12 +128,15 @@ def save_new_trip(user_id, trip_name, start_date, end_date, precip_pref, temp_pr
         cur.executemany(loc_sql, loc_data)
         
         conn.commit()
+        
         return {'trip_id': trip_id}
+
     except Exception as e:
         conn.rollback()
         print(f"Transaction failed: {e}")
         return None
     finally:
+        cur.close()
         conn.close()
 
 def get_user_trips(user_id):
