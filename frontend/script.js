@@ -437,27 +437,30 @@ if (save_button_wrap) {
         const trip_input_data = JSON.parse(stored_input);
         const trip_output_data = JSON.parse(stored_output);
 
-        // Map ranks from output to input locations
-        const ranked_locations = trip_input_data.locations.map((loc) => {
-            if (
-                loc.city === trip_output_data.rank_1_location.city &&
-                loc.state === trip_output_data.rank_1_location.state
-            ) {
-                return { ...loc, rank: 1 };
-            } else if (
-                loc.city === trip_output_data.rank_2_location.city &&
-                loc.state === trip_output_data.rank_2_location.state
-            ) {
-                return { ...loc, rank: 2 };
-            } else if (
-                loc.city === trip_output_data.rank_3_location.city &&
-                loc.state === trip_output_data.rank_3_location.state
-            ) {
-                return { ...loc, rank: 3 };
-            }
-            // fallback in case something doesn't match
-            return { ...loc, rank: null };
-        });
+		// Helper to match ranked location back to input location and attach rank
+		const match_ranked_location = (rank_loc, rank_number) => {
+			const match = trip_input_data.locations.find(
+				(loc) =>
+					loc.city === rank_loc.city &&
+					loc.state === rank_loc.state
+			);
+			if (match) {
+				return { ...match, rank: rank_number };
+			}
+			// Fallback: use ranked location data directly
+			return {
+				city: rank_loc.city,
+				state: rank_loc.state,
+				rank: rank_number
+			};
+		};
+
+		// Build locations array
+		const ranked_locations = [
+			match_ranked_location(trip_output_data.rank_1_location, 1),
+			match_ranked_location(trip_output_data.rank_2_location, 2),
+			match_ranked_location(trip_output_data.rank_3_location, 3)
+		];
 
         const formatted_trip_json = {
             user_id: trip_input_data.user_id,
@@ -627,7 +630,7 @@ if (login_form_wrap) {
                 body: JSON.stringify({ username, password })
             });
             
-            if (response.ok) {  // ← Status 200
+            if (response.ok) {  // Status 200
                 const data = await response.json();
                 // STORE USER SESSION
                 sessionStorage.setItem("current_user_id", data.user_id);
