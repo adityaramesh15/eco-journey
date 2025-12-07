@@ -204,6 +204,22 @@ function clear_success_message() {
     success_box.textContent = "";
 }
 
+function show_loading_message(message_text) {
+	const loading_box = document.getElementById("loading_message");
+	if (!loading_box) return;
+
+	loading_box.style.display = "block";
+	loading_box.textContent = message_text;
+}
+
+function clear_loading_message() {
+	const loading_box = document.getElementById("loading_message");
+	if (!loading_box) return;
+
+	loading_box.style.display = "none";
+	loading_box.textContent = "";
+}
+
 // TRIP FORM PROCESSOR AND GENERATOR FUNCTION
 
 const trip_form_wrap = document.getElementById("trip_form");
@@ -215,6 +231,8 @@ if (trip_form_wrap) {
     clear_messages();
     clear_ranks();
     clear_success_message();
+    clear_loading_message();
+    show_loading_message("Loading trip...");
 
     // Location Data Processing
     const city1 = document.querySelector("[name='city1']").value.trim();
@@ -269,6 +287,7 @@ if (trip_form_wrap) {
     }
     
     if (errors.length > 0) {
+        clear_loading_message();
         error_box.style.display = "block";
         const header = document.createElement("p");
         header.textContent = "ERROR(S) FOUND:";
@@ -349,6 +368,15 @@ if (trip_form_wrap) {
 
     const trip_output_data = await get_trip_rank(trip_input_data);
 
+    if (!trip_output_data) {
+        clear_loading_message();
+        error_box.style.display = "block";
+        const p = document.createElement("p");
+        p.textContent = "ERROR failed to generate trip ranks. Please try again.";
+        error_box.appendChild(p);
+        return;
+    }
+
     // Generate the Trip
 
     // Update Rank Elements
@@ -412,10 +440,34 @@ if (trip_form_wrap) {
         footer.textContent = "Please consider these warnings before saving your trip";
         warning_box.appendChild(footer);
     }
+
+	// Rainy/bad day success messages
+	let submit_success_messages = [];
+	const success_box = document.getElementById("success_message");
+
+	if (checkBadDays && bad_day_locations.length === 0) {
+		submit_success_messages.push("No bad days found in any ranked locations!");
+	}
+
+	if (checkRainyDays && rainy_day_locations.length === 0) {
+		submit_success_messages.push("No rainy days found in any ranked locations!");
+	}
+
+	if (submit_success_messages.length > 0) {
+		success_box.style.display = "block";
+		success_box.innerHTML = "";
+
+		submit_success_messages.forEach((msg) => {
+			const p = document.createElement("p");
+			p.textContent = msg;
+			success_box.appendChild(p);
+		});
+	}
     
     // Save JSON Data to Memory - so it can be used by save function
     sessionStorage.setItem("current_trip_input_data", JSON.stringify(trip_input_data));
     sessionStorage.setItem("current_trip_output_data", JSON.stringify(trip_output_data));
+    clear_loading_message();
     });
 }
 
@@ -533,7 +585,8 @@ if (discard_button_wrap) {
         clear_messages();
         clear_ranks();
         clear_form_inputs();
-        sessionStorage.removeItem("current_trip_data");
+        sessionStorage.removeItem("current_trip_input_data");
+        sessionStorage.removeItem("current_trip_output_data");
     });
 }
 

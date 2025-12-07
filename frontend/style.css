@@ -174,7 +174,7 @@
     height: 1.5rem;
 }
 
-.trip_name_row {
+#trip_name_row {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
@@ -227,11 +227,11 @@
   box-sizing: border-box;
 }
 
-.city-input {
+.city_input {
     flex: 3;
 }
   
-.state-input {
+.state_input {
     flex: 1;
     text-transform: uppercase;
 }
@@ -289,7 +289,7 @@
     text-align: center;
 }
 
-.check_box_inputs {
+#check_box_inputs {
     font-size: 0.9rem;
     display: flex;
     align-items: center;
@@ -652,3 +652,19 @@
 }
 
 /* End of Load Page */
+
+.loading {
+	display: none;
+	background-color: #e6f2ff;
+	border: 1px solid #9ecbff;
+	border-radius: 8px;
+	width: 95%;
+	margin: 1rem auto 0 auto;
+	padding: 0.8rem 1rem;
+	box-sizing: border-box;
+	text-align: left;
+	line-height: 1.5;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	color: #0b3d91;
+	font-weight: 500;
+}
