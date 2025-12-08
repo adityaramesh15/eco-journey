@@ -90,27 +90,16 @@ def get_user_trip_count(user_id):
 
 def save_new_trip(user_id, trip_name, start_date, end_date, precip_pref, temp_pref, locations):
     """
-    Transactional save of a new trip with a FIFO cap of 5 trips.
-    If the user has 5 or more trips, the oldest one is deleted before adding the new one.
+    Transactional save. 
+    1. Calls SP to enforce cap (delete old trip if needed).
+    2. Inserts new trip (Trigger validates dates here).
     """
     conn = db._get_connection()
     try:
         cur = conn.cursor()
         
-        cur.execute("SELECT COUNT(*) FROM TRIP_PLANS WHERE userID = %s", (user_id,))
-        print(f'HERE!')
-        trip_count = cur.fetchone()['COUNT(*)']
+        cur.execute("CALL sp_enforce_trip_cap(%s)", (user_id,))
         
-        if trip_count >= 5:
-            delete_sql = """
-                DELETE FROM TRIP_PLANS 
-                WHERE userID = %s 
-                ORDER BY tripID ASC 
-                LIMIT 1
-            """
-            cur.execute(delete_sql, (user_id,))
-            print(f"User {user_id} hit trip cap. Oldest trip deleted.")
-
         cur.execute(
             "INSERT INTO TRIP_PLANS (userID, planName, startDate, endDate) VALUES (%s, %s, %s, %s)",
             (user_id, trip_name, start_date, end_date)
@@ -123,6 +112,7 @@ def save_new_trip(user_id, trip_name, start_date, end_date, precip_pref, temp_pr
             (trip_id, 'temperature', temp_pref)
         ])
         
+
         loc_sql = "INSERT INTO TRIP_LOCATIONS (tripID, CITY, STATE, rank_order) VALUES (%s, %s, %s, %s)"
         loc_data = [(trip_id, loc['city'], loc['state'], i + 1) for i, loc in enumerate(locations)]
         cur.executemany(loc_sql, loc_data)
